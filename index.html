@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Contratos PDF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        /* Estilo para un mejor aspecto en los campos de formulario */
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-input, .form-select {
+            transition: border-color 0.3s ease;
+            border: 1px solid #111827; /* Borde negro fino y minimalista */
+            /* --- AQUÍ PUEDES CAMBIAR LA ALTURA Y EL ESPACIADO INTERIOR --- */
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            padding-left: 0.75rem; /* Espaciado interior izquierdo */
+            padding-right: 0.75rem; /* Espaciado interior derecho */
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #16a34a; /* Green to match the generate button */
+            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+        }
+        /* Estilo para el desplegable de idioma con flecha a la izquierda */
+        .form-select-left-arrow {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: left 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-left: 2.5rem; /* Espacio para el icono */
+        }
+        .btn-primary {
+            background-color: white;
+            color: #111827;
+            border: 2px solid #111827;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #16a34a; /* Green */
+            color: white;
+            border-color: #16a34a;
+        }
+        .btn-secondary {
+            background-color: white;
+            color: #111827;
+            border: 1px solid #111827; /* Borde cambiado a 1px */
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #111827; /* Black */
+            color: white;
+            border-color: #111827;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+         /* Estilos para la validación */
+        input:invalid, select:invalid {
+            border-color: #ef4444; /* Rojo para campos inválidos */
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+            <header class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Genera un contrato TS/LP multidioma.</h1>
+                <p class="text-gray-500 mt-2">Introduce los datos para crear un contrato en PDF al instante.</p>
+            </header>
+
+            <!-- Formulario de Contrato -->
+            <form id="contract-form" class="space-y-6" novalidate>
+                <!-- Selector de Idioma -->
+                <div class="w-full md:w-1/2">
+                    <label for="language" class="block text-sm font-medium text-gray-700 mb-1">Idioma del Contrato</label>
+                    <select id="language" class="form-select form-select-left-arrow w-full rounded-full" required>
+                        <option value="it">Italiano</option>
+                        <option value="fr">Francés</option>
+                        <option value="es" selected>Español</option>
+                        <option value="en">Inglés</option>
+                    </select>
+                </div>
+
+                <!-- Sección de Cliente y Fechas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="client-code" class="block text-sm font-medium text-gray-700 mb-1">Código de Cliente</label>
+                        <input type="text" id="client-code" class="form-input w-full rounded-full" placeholder="CLI-00123" required>
+                    </div>
+                    <div>
+                        <label for="client-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre de Cliente</label>
+                        <input type="text" id="client-name" class="form-input w-full rounded-full" placeholder="Ej: Maria López" required>
+                    </div>
+                    <div>
+                        <label for="send-date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Envío / Recogida</label>
+                        <input type="date" id="send-date" class="form-input w-full rounded-full" required>
+                    </div>
+                    <div>
+                        <label for="return-date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Devolución</label>
+                        <input type="date" id="return-date" class="form-input w-full rounded-full" required>
+                    </div>
+                </div>
+
+                <!-- Sección de Artículos (Vestidos) -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">Artículos del Contrato</h2>
+                    </div>
+                    <div id="items-container" class="space-y-4">
+                        <!-- Los artículos se añadirán aquí dinámicamente -->
+                    </div>
+                    <div class="mt-4">
+                         <button type="button" id="add-item-btn" class="btn-secondary font-bold py-1 px-4 rounded-full">
+                            Añadir Artículo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sección de Coste Total -->
+                <div class="border-t border-gray-200 pt-6 text-right">
+                     <div class="flex justify-end items-center">
+                        <span class="text-lg font-semibold text-gray-700 mr-4">Coste Total:</span>
+                        <input type="text" id="total-cost" class="form-input w-40 rounded-full text-right font-bold text-xl" readonly value="0.00 €">
+                     </div>
+                </div>
+                
+                <!-- Botón de Generar PDF -->
+                <div class="text-center pt-4">
+                    <button type="button" id="generate-pdf-btn" class="btn-primary font-bold py-3 px-8 rounded-full text-lg shadow-lg">
+                        Generar Contrato PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const { jsPDF } = window.jspdf;
+
+            // Traducciones
+            const translations = {
+                es: {
+                    title: "CONTRATO DE ALQUILER",
+                    clientCode: "Código de Cliente:",
+                    clientName: "Nombre de Cliente:",
+                    sendDate: "Fecha de Envío/Recogida:",
+                    returnDate: "Fecha de Devolución:",
+                    dressName: "Nombre del Vestido",
+                    unitCost: "Coste Unitario",
+                    totalCost: "Coste Total:",
+                    termsTitle: "Términos y Condiciones",
+                    termsContent: "1. El cliente se compromete a devolver los artículos en la fecha acordada.\n2. Cualquier daño a los artículos incurrirá en costes adicionales.\n3. El pago completo debe realizarse antes de la fecha de envío."
+                },
+                en: {
+                    title: "RENTAL AGREEMENT",
+                    clientCode: "Client Code:",
+                    clientName: "Client Name:",
+                    sendDate: "Dispatch/Pickup Date:",
+                    returnDate: "Return Date:",
+                    dressName: "Dress Name",
+                    unitCost: "Unit Cost",
+                    totalCost: "Total Cost:",
+                    termsTitle: "Terms and Conditions",
+                    termsContent: "1. The client agrees to return the items on the agreed date.\n2. Any damage to the items will incur additional costs.\n3. Full payment must be made before the dispatch date."
+                },
+                it: {
+                    title: "CONTRATTO DI NOLEGGIO",
+                    clientCode: "Codice Cliente:",
+                    clientName: "Nome Cliente:",
+                    sendDate: "Data di Spedizione/Ritiro:",
+                    returnDate: "Data di Restituzione:",
+                    dressName: "Nome del Vestito",
+                    unitCost: "Costo Unitario",
+                    totalCost: "Costo Totale:",
+                    termsTitle: "Termini e Condizioni",
+                    termsContent: "1. Il cliente si impegna a restituire gli articoli nella data concordata.\n2. Eventuali danni agli articoli comporteranno costi aggiuntivi.\n3. Il pagamento completo deve essere effettuato prima della data di spedizione."
+                },
+                fr: {
+                    title: "CONTRAT DE LOCATION",
+                    clientCode: "Code Client:",
+                    clientName: "Nom du Client:",
+                    sendDate: "Date d'Envoi/Retrait:",
+                    returnDate: "Date de Retour:",
+                    dressName: "Nom de la Robe",
+                    unitCost: "Coût Unitaire",
+                    totalCost: "Coût Total:",
+                    termsTitle: "Termes et Conditions",
+                    termsContent: "1. Le client s'engage à retourner les articles à la date convenue.\n2. Tout dommage aux articles entraînera des coûts supplémentaires.\n3. Le paiement intégral doit être effectué avant la date d'envoi."
+                }
+            };
+            
+            const form = document.getElementById('contract-form');
+            const addItemBtn = document.getElementById('add-item-btn');
+            const itemsContainer = document.getElementById('items-container');
+            const generatePdfBtn = document.getElementById('generate-pdf-btn');
+            const totalCostInput = document.getElementById('total-cost');
+            let itemCounter = 0;
+
+            // Función para actualizar el coste total
+            const updateTotalCost = () => {
+                let total = 0;
+                const itemCosts = document.querySelectorAll('.item-cost');
+                itemCosts.forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    total += value;
+                });
+                totalCostInput.value = `${total.toFixed(2)} €`;
+            };
+
+            // Función para añadir listeners a los nuevos elementos
+            const updateEventListeners = () => {
+                // Para eliminar un artículo
+                document.querySelectorAll('.remove-item-btn').forEach(button => {
+                    button.removeEventListener('click', handleRemoveItem);
+                    button.addEventListener('click', handleRemoveItem);
+                });
+
+                // Para actualizar el coste total
+                document.querySelectorAll('.item-cost').forEach(input => {
+                    input.removeEventListener('input', updateTotalCost);
+                    input.addEventListener('input', updateTotalCost);
+                });
+            };
+            
+            const handleRemoveItem = (e) => {
+                e.target.closest('.item-row').remove();
+                updateTotalCost();
+            };
+
+            // Añadir un nuevo artículo
+            const addNewItem = () => {
+                itemCounter++;
+                const newItem = document.createElement('div');
+                newItem.classList.add('grid', 'grid-cols-1', 'md:grid-cols-10', 'gap-4', 'items-center', 'item-row');
+                newItem.innerHTML = `
+                    <div class="md:col-span-6">
+                        <label class="text-sm font-medium text-gray-700 sr-only">Nombre del Vestido</label>
+                        <input type="text" placeholder="Nombre del Vestido ${itemCounter}" class="form-input w-full rounded-full item-name" required>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="text-sm font-medium text-gray-700 sr-only">Coste Unitario</label>
+                        <input type="number" placeholder="Coste Unitario (€)" min="0" step="0.01" class="form-input w-full rounded-full item-cost text-right" required>
+                    </div>
+                    <div class="md:col-span-1 text-center">
+                        <button type="button" class="btn-danger rounded-full p-2 remove-item-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                `;
+                itemsContainer.appendChild(newItem);
+                updateEventListeners();
+            };
+            
+            addItemBtn.addEventListener('click', addNewItem);
+
+            // Generar el PDF
+            generatePdfBtn.addEventListener('click', () => {
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const doc = new jsPDF();
+                const selectedLang = document.getElementById('language').value;
+                const T = translations[selectedLang];
+
+                // Obtener datos del formulario
+                const clientCode = document.getElementById('client-code').value;
+                const clientName = document.getElementById('client-name').value;
+                const sendDate = document.getElementById('send-date').value;
+                const returnDate = document.getElementById('return-date').value;
+                
+                // Título
+                doc.setFontSize(22);
+                doc.setFont('helvetica', 'bold');
+                doc.text(T.title, 105, 20, { align: 'center' });
+                
+                // Fecha de hoy (automática)
+                const today = new Date();
+                const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(formattedDate, 196, 25, { align: 'right' });
+
+                // --- CAMBIOS AQUÍ ---
+                // Información del Cliente y Fechas (etiqueta normal, valor en negrita)
+                const xStart = 14;
+                let yPos = 40;
+                doc.setFontSize(12);
+
+                const printLabelValue = (label, value) => {
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(label, xStart, yPos);
+                    const labelWidth = doc.getStringUnitWidth(label) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                    
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(value, xStart + labelWidth, yPos);
+                    yPos += 8;
+                };
+
+                printLabelValue(T.clientCode + " ", clientCode);
+                printLabelValue(T.clientName + " ", clientName);
+                printLabelValue(T.sendDate + " ", sendDate);
+                printLabelValue(T.returnDate + " ", returnDate);
+
+
+                // Tabla de artículos (contenido en negrita)
+                const tableColumn = [T.dressName, T.unitCost];
+                const tableRows = [];
+
+                document.querySelectorAll('.item-row').forEach(row => {
+                    const name = row.querySelector('.item-name').value;
+                    const cost = parseFloat(row.querySelector('.item-cost').value || 0).toFixed(2) + " €";
+                    tableRows.push([name, cost]);
+                });
+
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: yPos + 5, // Usar la nueva posición de Y
+                    theme: 'grid',
+                    headStyles: { fillColor: [172, 71, 68] },
+                    styles: { fontStyle: 'bold' } // Contenido de la tabla en negrita
+                });
+
+                // Coste Total (etiqueta normal, valor en negrita)
+                let finalY = doc.autoTable.previous.finalY;
+                const totalCost = totalCostInput.value;
+                const totalYPos = finalY + 15;
+                doc.setFontSize(14);
+                
+                doc.setFont('helvetica', 'normal');
+                doc.text(T.totalCost + " ", 14, totalYPos);
+                const totalLabelWidth = doc.getStringUnitWidth(T.totalCost + " ") * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                doc.setFont('helvetica', 'bold');
+                doc.text(totalCost, 14 + totalLabelWidth, totalYPos);
+
+                // Términos y Condiciones
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(T.termsTitle, 14, finalY + 30);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(T.termsContent, 14, finalY + 38);
+
+                // Guardar el PDF
+                doc.save(`contrato_${clientName.replace(/\s+/g, '_') || 'cliente'}.pdf`);
+            });
+
+            // Añadir un artículo inicial al cargar la página
+            addNewItem();
+        });
+    </script>
+</body>
+</html>
+
