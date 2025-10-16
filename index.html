@@ -13,7 +13,7 @@
     <style>
         /* Estilo para un mejor aspecto en los campos de formulario */
         body {
-            background-color: #f3f4f6;
+            background-color: #000000;
             font-family: 'Inter', sans-serif;
         }
         .form-input, .form-select {
@@ -52,24 +52,29 @@
             color: white;
             border-color: #16a34a;
         }
-        .btn-secondary {
+        /* Nuevos estilos para los botones de añadir y quitar */
+        .btn-icon-add, .btn-icon-remove {
             background-color: white;
-            color: #111827;
-            border: 1px solid #111827; /* Borde cambiado a 1px */
+            border: 1px solid #111827;
             transition: all 0.3s ease;
         }
-        .btn-secondary:hover {
-            background-color: #111827; /* Black */
-            color: white;
-            border-color: #111827;
+        .btn-icon-add svg, .btn-icon-remove svg {
+            fill: #111827; /* Icono negro por defecto */
+            transition: fill 0.3s ease;
         }
-        .btn-danger {
-            background-color: #ef4444;
-            color: white;
-            transition: background-color 0.3s;
+        .btn-icon-remove:hover {
+            background-color: #ef4444; /* Rojo */
+            border-color: #ef4444;
         }
-        .btn-danger:hover {
-            background-color: #dc2626;
+        .btn-icon-remove:hover svg {
+            fill: white;
+        }
+        .btn-icon-add:hover {
+            background-color: #22c55e; /* Verde */
+            border-color: #22c55e;
+        }
+        .btn-icon-add:hover svg {
+            fill: white;
         }
          /* Estilos para la validación */
         input:invalid, select:invalid {
@@ -82,8 +87,9 @@
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
             <header class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Genera un contrato TS/LP multidioma.</h1>
-                <p class="text-gray-500 mt-2">Introduce los datos para crear un contrato en PDF al instante.</p>
+                <!-- Logo centrado en la cabecera -->
+                <img id="logo" src="https://raw.githubusercontent.com/chircami/Trunk_show/f2e30af933a5c5d97d071f090cae28adcd9ffa57/AP-alargado-black.png" alt="Logo" class="mx-auto mb-4 w-40" />
+                <h1 class="text-3xl font-bold text-gray-600">Genera un contrato TS/LP multidioma.</h1>
             </header>
 
             <!-- Formulario de Contrato -->
@@ -126,11 +132,6 @@
                     </div>
                     <div id="items-container" class="space-y-4">
                         <!-- Los artículos se añadirán aquí dinámicamente -->
-                    </div>
-                    <div class="mt-4">
-                         <button type="button" id="add-item-btn" class="btn-secondary font-bold py-1 px-4 rounded-full">
-                            Añadir Artículo
-                        </button>
                     </div>
                 </div>
 
@@ -192,7 +193,7 @@
                     unitCost: "Costo Unitario",
                     totalCost: "Costo Totale:",
                     termsTitle: "Termini e Condizioni",
-                    termsContent: "1. Il cliente si impegna a restituire gli articoli nella data concordata.\n2. Eventuali danni agli articoli comporteranno costi aggiuntivi.\n3. Il pagamento completo deve essere effettuato prima della data di spedizione."
+                    termsContent: "1. Il cliente si impegna a restituire gli articoli nella data concordata.\n2. Eventuali danni agli articoli comporteranno costi aggiuntivi.\n3. Il pagamento completo debe essere effettuato prima della data di spedizione."
                 },
                 fr: {
                     title: "CONTRAT DE LOCATION",
@@ -209,7 +210,6 @@
             };
             
             const form = document.getElementById('contract-form');
-            const addItemBtn = document.getElementById('add-item-btn');
             const itemsContainer = document.getElementById('items-container');
             const generatePdfBtn = document.getElementById('generate-pdf-btn');
             const totalCostInput = document.getElementById('total-cost');
@@ -234,6 +234,12 @@
                     button.addEventListener('click', handleRemoveItem);
                 });
 
+                // Para añadir un nuevo artículo (ahora dinámico)
+                document.querySelectorAll('.add-item-btn').forEach(button => {
+                    button.removeEventListener('click', addNewItem);
+                    button.addEventListener('click', addNewItem);
+                });
+
                 // Para actualizar el coste total
                 document.querySelectorAll('.item-cost').forEach(input => {
                     input.removeEventListener('input', updateTotalCost);
@@ -242,17 +248,41 @@
             };
             
             const handleRemoveItem = (e) => {
-                e.target.closest('.item-row').remove();
+                const itemToRemove = e.target.closest('.item-row');
+                const wasLastItem = itemToRemove === itemsContainer.lastElementChild;
+
+                if (itemsContainer.children.length > 1) {
+                    itemToRemove.remove();
+                }
+
+                if (wasLastItem && itemsContainer.children.length > 0) {
+                    const newLastItemActions = itemsContainer.lastElementChild.querySelector('.actions-container');
+                    if (!newLastItemActions.querySelector('.add-item-btn')) {
+                        const addButton = document.createElement('button');
+                        addButton.type = 'button';
+                        addButton.className = 'btn-icon-add rounded-full p-2 add-item-btn';
+                        addButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>`;
+                        newLastItemActions.appendChild(addButton);
+                    }
+                }
+                
                 updateTotalCost();
+                updateEventListeners();
             };
 
             // Añadir un nuevo artículo
             const addNewItem = () => {
+                // Quitar el botón de añadir del anterior último elemento
+                const lastAddButton = itemsContainer.querySelector('.add-item-btn');
+                if (lastAddButton) {
+                    lastAddButton.remove();
+                }
+
                 itemCounter++;
                 const newItem = document.createElement('div');
                 newItem.classList.add('grid', 'grid-cols-1', 'md:grid-cols-10', 'gap-4', 'items-center', 'item-row');
                 newItem.innerHTML = `
-                    <div class="md:col-span-6">
+                    <div class="md:col-span-5">
                         <label class="text-sm font-medium text-gray-700 sr-only">Nombre del Vestido</label>
                         <input type="text" placeholder="Nombre del Vestido ${itemCounter}" class="form-input w-full rounded-full item-name" required>
                     </div>
@@ -260,26 +290,59 @@
                         <label class="text-sm font-medium text-gray-700 sr-only">Coste Unitario</label>
                         <input type="number" placeholder="Coste Unitario (€)" min="0" step="0.01" class="form-input w-full rounded-full item-cost text-right" required>
                     </div>
-                    <div class="md:col-span-1 text-center">
-                        <button type="button" class="btn-danger rounded-full p-2 remove-item-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
-                        </button>
+                    <div class="md:col-span-2 text-center">
+                        <div class="flex justify-center items-center space-x-2 actions-container">
+                             <button type="button" class="btn-icon-remove rounded-full p-2 remove-item-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <button type="button" class="btn-icon-add rounded-full p-2 add-item-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 `;
                 itemsContainer.appendChild(newItem);
                 updateEventListeners();
             };
-            
-            addItemBtn.addEventListener('click', addNewItem);
 
-            // Generar el PDF
-            generatePdfBtn.addEventListener('click', () => {
+            // Helper: cargar una imagen remota y devolver dataURL
+            const loadImageAsDataURL = (url) => {
+                return new Promise((resolve, reject) => {
+                    if (!url) return reject(new Error('No image URL'));
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.naturalWidth;
+                            canvas.height = img.naturalHeight;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            const dataURL = canvas.toDataURL('image/png');
+                            resolve({ dataURL, width: img.naturalWidth, height: img.naturalHeight });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    };
+                    img.onerror = () => reject(new Error('Failed to load image'));
+                    img.src = url;
+                });
+            };
+
+            // Generar el PDF (ahora async para poder await la carga del logo)
+            generatePdfBtn.addEventListener('click', async () => {
                 if (!form.checkValidity()) {
                     form.reportValidity();
                     return;
                 }
 
                 const doc = new jsPDF();
+                const pageWidth = doc.internal.pageSize.getWidth();
+
                 const selectedLang = document.getElementById('language').value;
                 const T = translations[selectedLang];
 
@@ -288,24 +351,50 @@
                 const clientName = document.getElementById('client-name').value;
                 const sendDate = document.getElementById('send-date').value;
                 const returnDate = document.getElementById('return-date').value;
-                
-                // Título
+
+                // Intentar cargar el logo mostrado en la cabecera y añadirlo centrado en el PDF
+                const logoEl = document.getElementById('logo');
+                let titleY = 20; // valor por defecto si no hay logo
+                let dateY;
+                try {
+                    if (logoEl && logoEl.src) {
+                        const logoData = await loadImageAsDataURL(logoEl.src);
+                        // Definir ancho en mm (ajusta según necesites)
+                        const logoDisplayWidth = 50;
+                        const aspect = logoData.height / logoData.width;
+                        const logoDisplayHeight = logoDisplayWidth * aspect;
+                        const x = (pageWidth - logoDisplayWidth) / 2;
+                        const y = 10; // margen superior
+                        doc.addImage(logoData.dataURL, 'PNG', x, y, logoDisplayWidth, logoDisplayHeight);
+                        titleY = y + logoDisplayHeight + 15; // MÁS ESPACIO: desplazar título por debajo del logo
+                    }
+                } catch (err) {
+                    console.warn('No se pudo cargar el logo para el PDF:', err);
+                }
+
+                // Título (centrado)
                 doc.setFontSize(22);
                 doc.setFont('helvetica', 'bold');
-                doc.text(T.title, 105, 20, { align: 'center' });
-                
-                // Fecha de hoy (automática)
+                doc.text(T.title, pageWidth / 2, titleY, { align: 'center' });
+
+                // Fecha de hoy (automática) - DEBAJO del título a la derecha
                 const today = new Date();
                 const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
-                doc.text(formattedDate, 196, 25, { align: 'right' });
+                dateY = titleY + 8; // Posición Y debajo del título
+                doc.text(formattedDate, pageWidth - 14, dateY, { align: 'right' });
 
-                // --- CAMBIOS AQUÍ ---
                 // Información del Cliente y Fechas (etiqueta normal, valor en negrita)
                 const xStart = 14;
-                let yPos = 40;
+                let yPos = dateY + 12; // Inicia después de la fecha
                 doc.setFontSize(12);
+
+                const formatInputDate = (dateStr) => {
+                    if (!dateStr) return '';
+                    const [year, month, day] = dateStr.split('-');
+                    return `${day}/${month}/${year}`;
+                };
 
                 const printLabelValue = (label, value) => {
                     doc.setFont('helvetica', 'normal');
@@ -319,8 +408,8 @@
 
                 printLabelValue(T.clientCode + " ", clientCode);
                 printLabelValue(T.clientName + " ", clientName);
-                printLabelValue(T.sendDate + " ", sendDate);
-                printLabelValue(T.returnDate + " ", returnDate);
+                printLabelValue(T.sendDate + " ", formatInputDate(sendDate));
+                printLabelValue(T.returnDate + " ", formatInputDate(returnDate));
 
 
                 // Tabla de artículos (contenido en negrita)
@@ -338,7 +427,7 @@
                     body: tableRows,
                     startY: yPos + 5, // Usar la nueva posición de Y
                     theme: 'grid',
-                    headStyles: { fillColor: [172, 71, 68] },
+                    headStyles: { fillColor: [172, 180, 172] },
                     styles: { fontStyle: 'bold' } // Contenido de la tabla en negrita
                 });
 
