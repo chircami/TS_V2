@@ -88,7 +88,7 @@
         <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
             <header class="text-center mb-14">
                 <!-- Logo centrado en la cabecera -->
-                <img id="logo" src="https://raw.githubusercontent.com/chircami/Trunk_show/f2e30af933a5c5d97d071f090cae28adcd9ffa57/AP-alargado-black.png" alt="Logo" class="mx-auto mb-12 w-40" />
+                <img id="logo" src="https://raw.githubusercontent.com/chircami/TS_V2/master/AP-alargado-black.png" alt="Logo" class="mx-auto mb-12 w-40" />
                 <h1 class="text-3xl font-bold text-gray-600">Genera un contrato TS/LP multidioma.</h1>
             </header>
 
@@ -110,6 +110,7 @@
                     <div>
                         <label for="client-code" class="block text-sm font-medium text-gray-700 mb-1">Código de Cliente</label>
                         <input type="text" id="client-code" class="form-input w-full rounded-full" placeholder="CLI-001" required>
+                        <div id="client-code-error" class="text-red-500 text-sm mt-1 hidden">El código de cliente no existe en la base de datos.</div>
                     </div>
                     <div>
                         <label for="contact-name" class="block text-sm font-medium text-gray-700 mb-1">Contacto</label>
@@ -179,7 +180,7 @@
                     title: "CONTRATO DE ALQUILER",
                     clientCode: "Código de Cliente:",
                     clientName: "Contacto:",
-                    customerDataText: "El presente contrato se celebra con la entidad {fiscalName} nombre comercial: {commercialName}, con número de identificación fiscal {vat} y domicilio en {address}, representado por {contactName}.",
+                    customerDataText: "El presente contrato se celebra con la entidad {fiscalName} (nombre comercial: {commercialName}), con número de identificación fiscal {vat} y domicilio en {address}, representado por {contactName} por un importe de {Total}.",
                     sendDate: "Fecha de Envío/Recogida:",
                     returnDate: "Fecha de Devolución:",
                     dressName: "Nombre del Vestido",
@@ -191,7 +192,7 @@
                     title: "RENTAL AGREEMENT",
                     clientCode: "Client Code:",
                     clientName: "Contact:",
-                    customerDataText: "This agreement is made with the entity {fiscalName} commercial name: {commercialName}, with tax identification number {vat} and address at {address}, represented by {contactName}.",
+                    customerDataText: "This agreement is made with the entity {fiscalName} (commercial name: {commercialName}), with tax identification number {vat} and address at {address}, represented by {contactName} for a total amount of {Total}.",
                     sendDate: "Dispatch/Pickup Date:",
                     returnDate: "Return Date:",
                     dressName: "Dress Name",
@@ -203,10 +204,10 @@
                     title: "CONTRATTO Trunk Show 2025",
                     clientCode: "Codice Cliente:",
                     clientName: "Contatto:",
-                    customerDataText: "*DATI DELLE PARTI*\nDa un lato, AP CUBED, S.L.U., con C.I.F. B09864760 e indirizzo in Calle Lagasca nº 99 Esc. B2, 8B2A, 28006 Madrid; di seguito AP CUBED; e, dall'altro lato, {fiscalName} nome commerciale: {commercialName}), P.I.: {vat} e domicilio in {address}. Rappresentato da {contactName} (codice cliente: {clientCode}).\n\n*CONDIZIONI PARTICOLARI*\nIl cliente accetta le seguenti condizioni...",
+                    customerDataText: "*DATI DELLE PARTI*\nDa un lato, AP CUBED, S.L.U., con C.I.F. B09864760 e indirizzo in Calle Lagasca nº 99 Esc. B2, 8B2A, 28006 Madrid; di seguito AP CUBED; e, dall'altro lato, {fiscalName} (nome commerciale: {commercialName}), P.I.: {vat} e domicilio in {address}. Rappresentato da {contactName} (codice cliente: {clientCode}).\n\n*CONDIZIONI PARTICOLARI*\nIl cliente accetta le seguenti condizioni per un importo totale di {Total}.",
                     sendDate: "Data di Spedizione/Ritiro:",
                     returnDate: "Data di Restituzione:",
-                    dressName: "Nome del Vestito",
+                    dressName: "Nome del Vestido",
                     unitCost: "Costo Unitario",
                     totalCost: "Costo Totale:",
                     termsTitle: "Termini e Condizioni"
@@ -215,7 +216,7 @@
                     title: "CONTRAT DE LOCATION",
                     clientCode: "Code Client:",
                     clientName: "Contact:",
-                    customerDataText: "Le présent contrat est conclu avec l'entité {fiscalName} (nom commercial: {commercialName}), avec le numéro d'identification fiscale {vat} et domiciliée à {address}, representé par {contactName}.",
+                    customerDataText: "Le présent contrat est conclu avec l'entité {fiscalName} (nom commercial: {commercialName}), avec le numéro d'identification fiscale {vat} et domiciliée à {address}, representé par {contactName} pour un montant total de {Total}.",
                     sendDate: "Date d'Envoi/Retrait:",
                     returnDate: "Date de Retour:",
                     dressName: "Nom de la Robe",
@@ -229,7 +230,14 @@
             const itemsContainer = document.getElementById('items-container');
             const generatePdfBtn = document.getElementById('generate-pdf-btn');
             const totalCostInput = document.getElementById('total-cost');
+            const clientCodeInput = document.getElementById('client-code');
+            const clientCodeError = document.getElementById('client-code-error');
             let itemCounter = 0;
+
+            // Ocultar error al escribir en el campo de código de cliente
+            clientCodeInput.addEventListener('input', () => {
+                clientCodeError.classList.add('hidden');
+            });
 
             // Función para actualizar el coste total
             const updateTotalCost = () => {
@@ -390,6 +398,15 @@
                     form.reportValidity();
                     return;
                 }
+                
+                const clientCode = document.getElementById('client-code').value;
+                 // Validar si el cliente existe en la BD
+                if (!customerDatabase[clientCode]) {
+                    clientCodeError.classList.remove('hidden');
+                    return;
+                } else {
+                    clientCodeError.classList.add('hidden');
+                }
 
                 const doc = new jsPDF();
                 const pageWidth = doc.internal.pageSize.getWidth();
@@ -398,10 +415,11 @@
                 const T = translations[selectedLang];
 
                 // Obtener datos del formulario
-                const clientCode = document.getElementById('client-code').value;
                 const contactName = document.getElementById('contact-name').value;
                 const sendDate = document.getElementById('send-date').value;
                 const returnDate = document.getElementById('return-date').value;
+                const totalCost = totalCostInput.value;
+
 
                  // Buscar datos del cliente en la base de datos UNA SOLA VEZ
                 const customerData = customerDatabase[clientCode];
@@ -483,16 +501,20 @@
                 doc.autoTable({
                     head: [tableColumn],
                     body: tableRows,
+                    foot: [
+                        [{ content: T.totalCost, styles: { halign: 'right' } }, { content: totalCost, styles: { halign: 'right' } }]
+                    ],
                     startY: yPos + 5, // Usar la nueva posición de Y
                     theme: 'grid',
                     headStyles: { fillColor: [172, 180, 172], fontSize: 8 },
                     styles: { fontStyle: 'bold', fontSize: 8 },
+                    footStyles: { fontStyle: 'bold', fontSize: 9, textColor: [0, 0, 0], fillColor: [240, 240, 240] },
                     columnStyles: {
                         1: { cellWidth: 40, halign: 'right' } // Columna de precio más estrecha y alineada a la derecha
                     }
                 });
 
-                // Coste Total (etiqueta normal, valor en negrita) a la DERECHA
+                // Coste Total ahora está en el footer de la tabla
                 let finalY = doc.autoTable.previous.finalY;
                 const pageHeight = doc.internal.pageSize.getHeight();
 
@@ -501,29 +523,9 @@
                     doc.addPage();
                     finalY = 20; // Reset Y to top margin on new page
                 }
-                
-                const totalCost = totalCostInput.value;
-                const totalYPos = finalY + 10; // Posicionar con más espacio
-                doc.setFontSize(7);
-                
-                const rightMargin = 14;
-                const rightX = pageWidth - rightMargin;
-
-                // Dibujar el valor en negrita
-                doc.setFont('helvetica', 'bold');
-                doc.text(totalCost, rightX, totalYPos, { align: 'right' });
-
-                // Calcular el ancho del valor para posicionar la etiqueta
-                const totalValueWidth = doc.getStringUnitWidth(totalCost) * doc.internal.getFontSize() / doc.internal.scaleFactor;
-                
-                // Dibujar la etiqueta en normal
-                doc.setFont('helvetica', 'normal');
-                const totalLabel = T.totalCost + " ";
-                doc.text(totalLabel, rightX - totalValueWidth, totalYPos, { align: 'right' });
-
 
                 // Términos y Condiciones
-                let termsYPos = totalYPos + 15;
+                let termsYPos = finalY + 15; // Posicionado relativo al final de la tabla
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
                 doc.text(T.termsTitle, 14, termsYPos);
@@ -543,7 +545,8 @@
                         '{vat}': customerData.vat,
                         '{address}': customerData.direccion,
                         '{contactName}': contactName,
-                        '{clientCode}': clientCode
+                        '{clientCode}': clientCode,
+                        '{Total}': totalCost
                     };
 
                     splitText.forEach(segment => {
