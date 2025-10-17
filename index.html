@@ -112,8 +112,8 @@
                         <input type="text" id="client-code" class="form-input w-full rounded-full" placeholder="CLI-00123" required>
                     </div>
                     <div>
-                        <label for="client-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre de Cliente</label>
-                        <input type="text" id="client-name" class="form-input w-full rounded-full" placeholder="Ej: Maria López" required>
+                        <label for="contact-name" class="block text-sm font-medium text-gray-700 mb-1">Contacto</label>
+                        <input type="text" id="contact-name" class="form-input w-full rounded-full" placeholder="Ej: Maria López" required>
                     </div>
                     <div>
                         <label for="send-date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Envío / Recogida</label>
@@ -162,7 +162,7 @@
                 es: {
                     title: "CONTRATO DE ALQUILER",
                     clientCode: "Código de Cliente:",
-                    clientName: "Nombre de Cliente:",
+                    clientName: "Contacto:",
                     sendDate: "Fecha de Envío/Recogida:",
                     returnDate: "Fecha de Devolución:",
                     dressName: "Nombre del Vestido",
@@ -174,7 +174,7 @@
                 en: {
                     title: "RENTAL AGREEMENT",
                     clientCode: "Client Code:",
-                    clientName: "Client Name:",
+                    clientName: "Contact:",
                     sendDate: "Dispatch/Pickup Date:",
                     returnDate: "Return Date:",
                     dressName: "Dress Name",
@@ -186,7 +186,7 @@
                 it: {
                     title: "CONTRATTO e TERMINI E CONDIZIONI Trunk Show 2025",
                     clientCode: "Codice Cliente:",
-                    clientName: "Nome Cliente:",
+                    clientName: "Contatto:",
                     sendDate: "Data di Spedizione/Ritiro:",
                     returnDate: "Data di Restituzione:",
                     dressName: "Nome del Vestito",
@@ -198,7 +198,7 @@
                 fr: {
                     title: "CONTRAT DE LOCATION",
                     clientCode: "Code Client:",
-                    clientName: "Nom du Client:",
+                    clientName: "Contact:",
                     sendDate: "Date d'Envoi/Retrait:",
                     returnDate: "Date de Retour:",
                     dressName: "Nom de la Robe",
@@ -349,7 +349,7 @@
 
                 // Obtener datos del formulario
                 const clientCode = document.getElementById('client-code').value;
-                const clientName = document.getElementById('client-name').value;
+                const contactName = document.getElementById('contact-name').value;
                 const sendDate = document.getElementById('send-date').value;
                 const returnDate = document.getElementById('return-date').value;
 
@@ -408,7 +408,7 @@
                 };
 
                 printLabelValue(T.clientCode + " ", clientCode);
-                printLabelValue(T.clientName + " ", clientName);
+                printLabelValue(T.clientName + " ", contactName);
                 printLabelValue(T.sendDate + " ", formatInputDate(sendDate));
                 printLabelValue(T.returnDate + " ", formatInputDate(returnDate));
 
@@ -466,7 +466,7 @@
                 doc.text(T.termsContent, 14, totalYPos + 23); // Posicionado relativo al coste total
 
                 // Guardar el PDF
-                doc.save(`contrato_${clientName.replace(/\s+/g, '_') || 'cliente'}.pdf`);
+                doc.save(`contrato_${contactName.replace(/\s+/g, '_') || 'contacto'}.pdf`);
             });
 
             // Añadir un artículo inicial al cargar la página
