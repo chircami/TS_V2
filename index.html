@@ -86,14 +86,14 @@
 
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
-            <header class="text-center mb-12">
+            <header class="text-center mb-14">
                 <!-- Logo centrado en la cabecera -->
-                <img id="logo" src="https://raw.githubusercontent.com/chircami/Trunk_show/f2e30af933a5c5d97d071f090cae28adcd9ffa57/AP-alargado-black.png" alt="Logo" class="mx-auto mb-4 w-40" />
+                <img id="logo" src="https://raw.githubusercontent.com/chircami/Trunk_show/f2e30af933a5c5d97d071f090cae28adcd9ffa57/AP-alargado-black.png" alt="Logo" class="mx-auto mb-12 w-40" />
                 <h1 class="text-3xl font-bold text-gray-600">Genera un contrato TS/LP multidioma.</h1>
             </header>
 
             <!-- Formulario de Contrato -->
-            <form id="contract-form" class="space-y-6 pt-8" novalidate>
+            <form id="contract-form" class="space-y-6 pt-2" novalidate>
                 <!-- Selector de Idioma -->
                 <div class="w-full md:w-1/2">
                     <label for="language" class="block text-sm font-medium text-gray-700 mb-1">Idioma del Contrato</label>
@@ -109,7 +109,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="client-code" class="block text-sm font-medium text-gray-700 mb-1">Código de Cliente</label>
-                        <input type="text" id="client-code" class="form-input w-full rounded-full" placeholder="CLI-00123" required>
+                        <input type="text" id="client-code" class="form-input w-full rounded-full" placeholder="CLI-001" required>
                     </div>
                     <div>
                         <label for="contact-name" class="block text-sm font-medium text-gray-700 mb-1">Contacto</label>
@@ -157,55 +157,71 @@
         document.addEventListener('DOMContentLoaded', function () {
             const { jsPDF } = window.jspdf;
 
+            // Base de datos de clientes (para prueba)
+            const customerDatabase = {
+                "CLI-001": {
+                    nombreFiscal: "Empresa Ficticia S.L.",
+                    nombreComercial: "Tienda de Vestidos Ejemplo",
+                    vat: "B12345678",
+                    direccion: "Calle Falsa 123, 08001 Barcelona, España"
+                },
+                "CLI-002": {
+                    nombreFiscal: "Moda Creativa S.A.",
+                    nombreComercial: "Boutique La Rosa",
+                    vat: "A87654321",
+                    direccion: "Avenida Diagonal 456, 08002 Barcelona, España"
+                }
+            };
+
             // Traducciones
             const translations = {
                 es: {
                     title: "CONTRATO DE ALQUILER",
                     clientCode: "Código de Cliente:",
                     clientName: "Contacto:",
+                    customerDataText: "El presente contrato se celebra con la entidad {fiscalName} nombre comercial: {commercialName}, con número de identificación fiscal {vat} y domicilio en {address}, representado por {contactName}.",
                     sendDate: "Fecha de Envío/Recogida:",
                     returnDate: "Fecha de Devolución:",
                     dressName: "Nombre del Vestido",
                     unitCost: "Coste Unitario",
                     totalCost: "Coste Total:",
-                    termsTitle: "Términos y Condiciones",
-                    termsContent: "1. El cliente se compromete a devolver los artículos en la fecha acordada.\n2. Cualquier daño a los artículos incurrirá en costes adicionales.\n3. El pago completo debe realizarse antes de la fecha de envío."
+                    termsTitle: "Términos y Condiciones"
                 },
                 en: {
                     title: "RENTAL AGREEMENT",
                     clientCode: "Client Code:",
                     clientName: "Contact:",
+                    customerDataText: "This agreement is made with the entity {fiscalName} commercial name: {commercialName}, with tax identification number {vat} and address at {address}, represented by {contactName}.",
                     sendDate: "Dispatch/Pickup Date:",
                     returnDate: "Return Date:",
                     dressName: "Dress Name",
                     unitCost: "Unit Cost",
                     totalCost: "Total Cost:",
-                    termsTitle: "Terms and Conditions",
-                    termsContent: "1. The client agrees to return the items on the agreed date.\n2. Any damage to the items will incur additional costs.\n3. Full payment must be made before the dispatch date."
+                    termsTitle: "Terms and Conditions"
                 },
                 it: {
-                    title: "CONTRATTO e TERMINI E CONDIZIONI Trunk Show 2025",
+                    title: "CONTRATTO Trunk Show 2025",
                     clientCode: "Codice Cliente:",
                     clientName: "Contatto:",
+                    customerDataText: "*DATI DELLE PARTI*\nDa un lato, AP CUBED, S.L.U., con C.I.F. B09864760 e indirizzo in Calle Lagasca nº 99 Esc. B2, 8B2A, 28006 Madrid; di seguito AP CUBED; e, dall'altro lato, {fiscalName} nome commerciale: {commercialName}), P.I.: {vat} e domicilio in {address}. Rappresentato da {contactName} (codice cliente: {clientCode}).\n\n*CONDIZIONI PARTICOLARI*\nIl cliente accetta le seguenti condizioni...",
                     sendDate: "Data di Spedizione/Ritiro:",
                     returnDate: "Data di Restituzione:",
                     dressName: "Nome del Vestito",
                     unitCost: "Costo Unitario",
                     totalCost: "Costo Totale:",
-                    termsTitle: "Termini e Condizioni",
-                    termsContent: "1. Il cliente si impegna a restituire gli articoli nella data concordata.\n2. Eventuali danni agli articoli comporteranno costi aggiuntivi.\n3. Il pagamento completo debe essere effettuato prima della data di spedizione."
+                    termsTitle: "Termini e Condizioni"
                 },
                 fr: {
                     title: "CONTRAT DE LOCATION",
                     clientCode: "Code Client:",
                     clientName: "Contact:",
+                    customerDataText: "Le présent contrat est conclu avec l'entité {fiscalName} (nom commercial: {commercialName}), avec le numéro d'identification fiscale {vat} et domiciliée à {address}, representé par {contactName}.",
                     sendDate: "Date d'Envoi/Retrait:",
                     returnDate: "Date de Retour:",
                     dressName: "Nom de la Robe",
                     unitCost: "Coût Unitaire",
                     totalCost: "Coût Total:",
-                    termsTitle: "Termes et Conditions",
-                    termsContent: "1. Le client s'engage à retourner les articles à la date convenue.\n2. Tout dommage aux articles entraînera des coûts supplémentaires.\n3. Le paiement intégral doit être effectué avant la date d'envoi."
+                    termsTitle: "Termes et Conditions"
                 }
             };
             
@@ -333,6 +349,40 @@
                     img.src = url;
                 });
             };
+            
+            // Helper: Imprimir texto con estilos mixtos (normal y negrita) y auto-wrap
+            const printMixedStyleText = (doc, textParts, x, y, maxWidth, lineHeight) => {
+                let currentX = x;
+                let currentY = y;
+
+                textParts.forEach(part => {
+                    if (part.style === 'break') {
+                        currentY += lineHeight;
+                        currentX = x;
+                        return;
+                    }
+                
+                    doc.setFont('helvetica', part.style || 'normal');
+                    const tokens = part.text.match(/\s+|\S+/g) || [];
+
+                    tokens.forEach(token => {
+                        const tokenWidth = doc.getStringUnitWidth(token) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+
+                        if (currentX > x && currentX + tokenWidth > x + maxWidth && token.trim() !== '') {
+                            currentY += lineHeight;
+                            currentX = x;
+                        }
+                        
+                        if (currentX === x && token.trim() === '') {
+                           return; // No imprimir espacios al inicio de una nueva línea
+                        }
+
+                        doc.text(token, currentX, currentY);
+                        currentX += tokenWidth;
+                    });
+                });
+                return currentY;
+            };
 
             // Generar el PDF (ahora async para poder await la carga del logo)
             generatePdfBtn.addEventListener('click', async () => {
@@ -352,6 +402,9 @@
                 const contactName = document.getElementById('contact-name').value;
                 const sendDate = document.getElementById('send-date').value;
                 const returnDate = document.getElementById('return-date').value;
+
+                 // Buscar datos del cliente en la base de datos UNA SOLA VEZ
+                const customerData = customerDatabase[clientCode];
 
                 // Intentar cargar el logo mostrado en la cabecera y añadirlo centrado en el PDF
                 const logoEl = document.getElementById('logo');
@@ -374,14 +427,14 @@
                 }
 
                 // Título (centrado)
-                doc.setFontSize(11);
+                doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
                 doc.text(T.title, pageWidth / 2, titleY, { align: 'center' });
 
                 // Fecha de hoy (automática) - DEBAJO del título a la izquierda
                 const today = new Date();
                 const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
-                doc.setFontSize(5);
+                doc.setFontSize(8);
                 doc.setFont('helvetica', 'normal');
                 dateY = titleY + 8; // Posición Y debajo del título
                 doc.text(formattedDate, 14, dateY, { align: 'left' });
@@ -389,7 +442,7 @@
                 // Información del Cliente y Fechas (etiqueta normal, valor en negrita)
                 const xStart = 14;
                 let yPos = dateY + 12; // Inicia después de la fecha
-                doc.setFontSize(6);
+                doc.setFontSize(8);
 
                 const formatInputDate = (dateStr) => {
                     if (!dateStr) return '';
@@ -407,7 +460,11 @@
                     yPos += 5; // Espacio entre líneas reducido
                 };
 
-                printLabelValue(T.clientCode + " ", clientCode);
+                let displayClientCode = clientCode;
+                if (customerData && customerData.nombreComercial) {
+                    displayClientCode = `${clientCode} - ${customerData.nombreComercial}`;
+                }
+                printLabelValue(T.clientCode + " ", displayClientCode);
                 printLabelValue(T.clientName + " ", contactName);
                 printLabelValue(T.sendDate + " ", formatInputDate(sendDate));
                 printLabelValue(T.returnDate + " ", formatInputDate(returnDate));
@@ -428,8 +485,8 @@
                     body: tableRows,
                     startY: yPos + 5, // Usar la nueva posición de Y
                     theme: 'grid',
-                    headStyles: { fillColor: [172, 180, 172], fontSize: 5 },
-                    styles: { fontStyle: 'bold', fontSize: 5 },
+                    headStyles: { fillColor: [172, 180, 172], fontSize: 8 },
+                    styles: { fontStyle: 'bold', fontSize: 8 },
                     columnStyles: {
                         1: { cellWidth: 40, halign: 'right' } // Columna de precio más estrecha y alineada a la derecha
                     }
@@ -437,8 +494,16 @@
 
                 // Coste Total (etiqueta normal, valor en negrita) a la DERECHA
                 let finalY = doc.autoTable.previous.finalY;
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                // --- FIX: Check if we need a new page for the footer content ---
+                if (finalY > pageHeight - 60) { // 60mm space needed for total + terms
+                    doc.addPage();
+                    finalY = 20; // Reset Y to top margin on new page
+                }
+                
                 const totalCost = totalCostInput.value;
-                const totalYPos = finalY + 5; // Espacio reducido
+                const totalYPos = finalY + 10; // Posicionar con más espacio
                 doc.setFontSize(7);
                 
                 const rightMargin = 14;
@@ -458,12 +523,44 @@
 
 
                 // Términos y Condiciones
-                doc.setFontSize(6);
+                let termsYPos = totalYPos + 15;
+                doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
-                doc.text(T.termsTitle, 14, totalYPos + 15); // Posicionado relativo al coste total
-                doc.setFontSize(5);
-                doc.setFont('helvetica', 'normal');
-                doc.text(T.termsContent, 14, totalYPos + 23); // Posicionado relativo al coste total
+                doc.text(T.termsTitle, 14, termsYPos);
+                
+                let lastY = termsYPos + 8;
+
+                // MOVED: Buscar datos del cliente en la base de datos y ponerlos aquí
+                if (customerData) {
+                    const textParts = [];
+                    // Regex para capturar *títulos*, {variables} y \n (saltos de línea)
+                    const regex = /(\*.*?\*)|(\{.*?\})|(\n)/g;
+                    const splitText = T.customerDataText.split(regex).filter(Boolean);
+
+                    const placeholders = {
+                        '{fiscalName}': customerData.nombreFiscal,
+                        '{commercialName}': customerData.nombreComercial,
+                        '{vat}': customerData.vat,
+                        '{address}': customerData.direccion,
+                        '{contactName}': contactName,
+                        '{clientCode}': clientCode
+                    };
+
+                    splitText.forEach(segment => {
+                        if (segment === '\n') {
+                            textParts.push({ text: '\n', style: 'break' });
+                        } else if (segment.startsWith('*') && segment.endsWith('*')) {
+                            textParts.push({ text: segment.slice(1, -1), style: 'bold' });
+                        } else if (placeholders[segment]) {
+                            textParts.push({ text: placeholders[segment], style: 'bold' });
+                        } else {
+                            textParts.push({ text: segment, style: 'normal' });
+                        }
+                    });
+                    
+                    doc.setFontSize(8);
+                    lastY = printMixedStyleText(doc, textParts, 14, lastY, pageWidth - 28, 4);
+                }
 
                 // Guardar el PDF
                 doc.save(`contrato_${contactName.replace(/\s+/g, '_') || 'contacto'}.pdf`);
