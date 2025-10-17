@@ -98,7 +98,7 @@
                 <div class="w-full md:w-1/2">
                     <label for="language" class="block text-sm font-medium text-gray-700 mb-1">Idioma del Contrato</label>
                     <select id="language" class="form-select form-select-left-arrow w-full rounded-full" required>
-                        <option value="it">Italiano</option>
+                        <option value="it"selected>Italiano</option>
                         <option value="fr">Francés</option>
                         <option value="es">Español</option>
                         <option value="en">Inglés</option>
@@ -184,7 +184,7 @@
                     termsContent: "1. The client agrees to return the items on the agreed date.\n2. Any damage to the items will incur additional costs.\n3. Full payment must be made before the dispatch date."
                 },
                 it: {
-                    title: "CONTRATTO DI NOLEGGIO",
+                    title: "CONTRATTO e TERMINI E CONDIZIONI Trunk Show 2025",
                     clientCode: "Codice Cliente:",
                     clientName: "Nome Cliente:",
                     sendDate: "Data di Spedizione/Ritiro:",
@@ -322,8 +322,9 @@
                             canvas.height = img.naturalHeight;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0);
-                            const dataURL = canvas.toDataURL('image/png');
-                            resolve({ dataURL, width: img.naturalWidth, height: img.naturalHeight });
+                            // Mantenemos el formato PNG para preservar la calidad y transparencia
+                            const dataURL = canvas.toDataURL('image/png'); 
+                            resolve({ dataURL, width: canvas.width, height: canvas.height });
                         } catch (err) {
                             reject(err);
                         }
@@ -363,32 +364,32 @@
                         const logoDisplayWidth = 50;
                         const aspect = logoData.height / logoData.width;
                         const logoDisplayHeight = logoDisplayWidth * aspect;
-                        const x = (pageWidth - logoDisplayWidth) / 2;
+                        const x = pageWidth - logoDisplayWidth - 14; // ALINEAR A LA DERECHA
                         const y = 10; // margen superior
-                        doc.addImage(logoData.dataURL, 'PNG', x, y, logoDisplayWidth, logoDisplayHeight);
-                        titleY = y + logoDisplayHeight + 15; // MÁS ESPACIO: desplazar título por debajo del logo
+                        doc.addImage(logoData.dataURL, 'PNG', x, y, logoDisplayWidth, logoDisplayHeight); // Usar PNG
+                        titleY = y + logoDisplayHeight + 25; // MÁS ESPACIO
                     }
                 } catch (err) {
                     console.warn('No se pudo cargar el logo para el PDF:', err);
                 }
 
                 // Título (centrado)
-                doc.setFontSize(22);
+                doc.setFontSize(11);
                 doc.setFont('helvetica', 'bold');
                 doc.text(T.title, pageWidth / 2, titleY, { align: 'center' });
 
-                // Fecha de hoy (automática) - DEBAJO del título a la derecha
+                // Fecha de hoy (automática) - DEBAJO del título a la izquierda
                 const today = new Date();
                 const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
-                doc.setFontSize(10);
+                doc.setFontSize(5);
                 doc.setFont('helvetica', 'normal');
                 dateY = titleY + 8; // Posición Y debajo del título
-                doc.text(formattedDate, pageWidth - 14, dateY, { align: 'right' });
+                doc.text(formattedDate, 14, dateY, { align: 'left' });
 
                 // Información del Cliente y Fechas (etiqueta normal, valor en negrita)
                 const xStart = 14;
                 let yPos = dateY + 12; // Inicia después de la fecha
-                doc.setFontSize(12);
+                doc.setFontSize(6);
 
                 const formatInputDate = (dateStr) => {
                     if (!dateStr) return '';
@@ -403,7 +404,7 @@
                     
                     doc.setFont('helvetica', 'bold');
                     doc.text(value, xStart + labelWidth, yPos);
-                    yPos += 8;
+                    yPos += 5; // Espacio entre líneas reducido
                 };
 
                 printLabelValue(T.clientCode + " ", clientCode);
@@ -427,29 +428,42 @@
                     body: tableRows,
                     startY: yPos + 5, // Usar la nueva posición de Y
                     theme: 'grid',
-                    headStyles: { fillColor: [172, 180, 172] },
-                    styles: { fontStyle: 'bold' } // Contenido de la tabla en negrita
+                    headStyles: { fillColor: [172, 180, 172], fontSize: 5 },
+                    styles: { fontStyle: 'bold', fontSize: 5 },
+                    columnStyles: {
+                        1: { cellWidth: 40, halign: 'right' } // Columna de precio más estrecha y alineada a la derecha
+                    }
                 });
 
-                // Coste Total (etiqueta normal, valor en negrita)
+                // Coste Total (etiqueta normal, valor en negrita) a la DERECHA
                 let finalY = doc.autoTable.previous.finalY;
                 const totalCost = totalCostInput.value;
-                const totalYPos = finalY + 15;
-                doc.setFontSize(14);
+                const totalYPos = finalY + 5; // Espacio reducido
+                doc.setFontSize(7);
                 
-                doc.setFont('helvetica', 'normal');
-                doc.text(T.totalCost + " ", 14, totalYPos);
-                const totalLabelWidth = doc.getStringUnitWidth(T.totalCost + " ") * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                const rightMargin = 14;
+                const rightX = pageWidth - rightMargin;
+
+                // Dibujar el valor en negrita
                 doc.setFont('helvetica', 'bold');
-                doc.text(totalCost, 14 + totalLabelWidth, totalYPos);
+                doc.text(totalCost, rightX, totalYPos, { align: 'right' });
+
+                // Calcular el ancho del valor para posicionar la etiqueta
+                const totalValueWidth = doc.getStringUnitWidth(totalCost) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                
+                // Dibujar la etiqueta en normal
+                doc.setFont('helvetica', 'normal');
+                const totalLabel = T.totalCost + " ";
+                doc.text(totalLabel, rightX - totalValueWidth, totalYPos, { align: 'right' });
+
 
                 // Términos y Condiciones
-                doc.setFontSize(12);
+                doc.setFontSize(6);
                 doc.setFont('helvetica', 'bold');
-                doc.text(T.termsTitle, 14, finalY + 30);
-                doc.setFontSize(10);
+                doc.text(T.termsTitle, 14, totalYPos + 15); // Posicionado relativo al coste total
+                doc.setFontSize(5);
                 doc.setFont('helvetica', 'normal');
-                doc.text(T.termsContent, 14, finalY + 38);
+                doc.text(T.termsContent, 14, totalYPos + 23); // Posicionado relativo al coste total
 
                 // Guardar el PDF
                 doc.save(`contrato_${clientName.replace(/\s+/g, '_') || 'cliente'}.pdf`);
@@ -461,5 +475,4 @@
     </script>
 </body>
 </html>
-
 
