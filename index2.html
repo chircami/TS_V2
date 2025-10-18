@@ -224,6 +224,24 @@
             const emailInput = document.getElementById('email-input');
             const passwordInput = document.getElementById('password-input');
             const loginError = document.getElementById('login-error');
+
+            // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBvVI0NyeYJXzVim1Xg26Kmib4eyQM-eGk",
+  authDomain: "generador-de-contratos-ap.firebaseapp.com",
+  projectId: "generador-de-contratos-ap",
+  storageBucket: "generador-de-contratos-ap.firebasestorage.app",
+  messagingSenderId: "239072569809",
+  appId: "1:239072569809:web:5e459a556ed90d275658f0"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
             
             loginButton.addEventListener('click', () => {
                 const email = emailInput.value;
