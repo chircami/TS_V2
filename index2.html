@@ -230,6 +230,27 @@ import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
+            import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+const auth = getAuth();
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // El usuario ha iniciado sesión.
+    // Aquí es donde deberías renderizar o mostrar el contenido "automático".
+    console.log("Usuario logueado:", user.email);
+    // Por ejemplo, mostrar un div oculto o cargar componentes.
+    document.getElementById('contenido-protegido').style.display = 'block';
+    document.getElementById('formulario-login').style.display = 'none';
+  } else {
+    // El usuario ha cerrado sesión o no ha iniciado sesión.
+    // Aquí deberías mostrar la pantalla de login o el contenido público.
+    console.log("No hay usuario logueado.");
+    document.getElementById('contenido-protegido').style.display = 'none';
+    document.getElementById('formulario-login').style.display = 'block';
+  }
+});
+
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBvVI0NyeYJXzVim1Xg26Kmib4eyQM-eGk",
