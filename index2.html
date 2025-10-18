@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Contratos PDF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        /* Estilo para un mejor aspecto en los campos de formulario */
+        body {
+            background-color: #000000;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-input, .form-select {
+            transition: border-color 0.3s ease;
+            border: 1px solid #111827; /* Borde negro fino y minimalista */
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            padding-left: 0.75rem; /* Espaciado interior izquierdo */
+            padding-right: 0.75rem; /* Espaciado interior derecho */
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #16a34a; /* Verde para abbinare al pulsante di generazione */
+            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+        }
+        /* Stile per il menu a discesa della lingua con freccia a sinistra */
+        .form-select-left-arrow {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: left 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-left: 2.5rem; /* Spazio per l'icona */
+        }
+        .btn-primary {
+            background-color: white;
+            color: #111827;
+            border: 2px solid #111827;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #16a34a; /* Verde */
+            color: white;
+            border-color: #16a34a;
+        }
+        .btn-gemini {
+            background: linear-gradient(to right, #4285F4, #9B72F2, #DB4437, #F4B400);
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-gemini:hover {
+            opacity: 0.9;
+        }
+        /* Nuovi stili per i pulsanti di aggiunta e rimozione */
+        .btn-icon-add, .btn-icon-remove {
+            background-color: white;
+            border: 1px solid #111827;
+            transition: all 0.3s ease;
+        }
+        .btn-icon-add svg, .btn-icon-remove svg {
+            fill: #111827; /* Icona nera di default */
+            transition: fill 0.3s ease;
+        }
+        .btn-icon-remove:hover {
+            background-color: #ef4444; /* Rosso */
+            border-color: #ef4444;
+        }
+        .btn-icon-remove:hover svg {
+            fill: white;
+        }
+        .btn-icon-add:hover {
+            background-color: #22c55e; /* Verde */
+            border-color: #22c55e;
+        }
+        .btn-icon-add:hover svg {
+            fill: white;
+        }
+         /* Stili per la validazione */
+        input:invalid, select:invalid {
+            border-color: #ef4444; /* Rosso per campi non validi */
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800">
+
+    <!-- Schermata di Login -->
+    <div id="login-screen" class="bg-black min-h-screen flex flex-col items-center justify-center p-4">
+        <img id="logo-white" src="https://raw.githubusercontent.com/chircami/TS_V2/master/AP-alargado-white.png" alt="Logo Bianco" class="mx-auto mb-20 w-[440px]" />
+        <div class="w-full max-w-[220px] text-center space-y-4">
+            <input type="email" id="email-input" class="bg-black text-white border border-white w-full rounded-full text-center text-lg tracking-widest py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white" placeholder="Email">
+            <input type="password" id="password-input" class="bg-black text-white border border-white w-full rounded-full text-center text-lg tracking-widest py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white" placeholder="Password">
+            <p id="login-error" class="text-red-500 text-sm hidden">Credenciales incorrectas.</p>
+            <button id="login-button" class="w-full bg-black text-white border border-white font-bold py-3 px-4 rounded-full hover:bg-white hover:text-black transition">Entra</button>
+        </div>
+    </div>
+
+    <!-- Contenuto Principale (Nascosto di default) -->
+    <div id="main-content" class="hidden">
+        <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                <header class="text-center mb-14">
+                    <!-- Logo centrato nell'intestazione -->
+                    <img id="logo" src="https://raw.githubusercontent.com/chircami/TS_V2/master/AP-alargado-black.png" alt="Logo" class="mx-auto mb-12 w-40" />
+                    <h1 class="text-3xl font-bold text-gray-600">Genera un contratto TS/LP multilingue.</h1>
+                </header>
+
+                <!-- Modulo Contratto -->
+                <form id="contract-form" class="space-y-6 pt-2" novalidate>
+                    <!-- Selettore Lingua -->
+                    <div class="w-full md:w-1/2">
+                        <label for="language" class="block text-sm font-medium text-gray-700 mb-1">Lingua del Contratto</label>
+                        <select id="language" class="form-select form-select-left-arrow w-full rounded-full" required>
+                            <option value="it"selected>Italiano</option>
+                            <option value="fr">Francese</option>
+                            <option value="es">Spagnolo</option>
+                            <option value="en">Inglese</option>
+                        </select>
+                    </div>
+
+                    <!-- Sezione Cliente e Date -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="client-code" class="block text-sm font-medium text-gray-700 mb-1">Codice Cliente</label>
+                            <input type="text" id="client-code" class="form-input w-full rounded-full" placeholder="IT0001" required>
+                            <div id="client-code-error" class="text-red-500 text-sm mt-1 hidden">Il codice cliente non esiste nel database.</div>
+                        </div>
+                        <div>
+                            <label for="contact-name" class="block text-sm font-medium text-gray-700 mb-1">Contatto</label>
+                            <input type="text" id="contact-name" class="form-input w-full rounded-full" placeholder="Es: Maria Rossi" required>
+                        </div>
+                        <div>
+                            <label for="send-date" class="block text-sm font-medium text-gray-700 mb-1">Data di Spedizione / Ritiro</label>
+                            <input type="date" id="send-date" class="form-input w-full rounded-full" required>
+                        </div>
+                        <div>
+                            <label for="return-date" class="block text-sm font-medium text-gray-700 mb-1">Data di Restituzione</label>
+                            <input type="date" id="return-date" class="form-input w-full rounded-full" required>
+                        </div>
+                    </div>
+
+                    <!-- Sezione Articoli (Abiti) -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold">Articoli del Contratto</h2>
+                        </div>
+                        <div id="items-container" class="space-y-4">
+                            <!-- Gli articoli verranno aggiunti dinamicamente qui -->
+                        </div>
+                    </div>
+
+                    <!-- Sezione Costo Totale -->
+                    <div class="border-t border-gray-200 pt-6 text-right">
+                         <div class="flex justify-end items-center">
+                            <span class="text-lg font-semibold text-gray-700 mr-4">Costo Totale:</span>
+                            <input type="text" id="total-cost" class="form-input w-40 rounded-full text-right font-bold text-xl" readonly value="0.00 €">
+                         </div>
+                    </div>
+                    
+                    <!-- Pulsanti di Azione -->
+                    <div class="text-center pt-4 space-y-4">
+                        <button type="button" id="generate-pdf-btn" class="btn-primary font-bold py-3 px-8 rounded-full text-lg shadow-lg">
+                            Genera Contratto PDF
+                        </button>
+                        <button type="button" id="generate-email-btn" class="btn-gemini font-bold py-3 px-8 rounded-full text-lg shadow-lg hidden">
+                           Genera E-mail con IA ✨
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale per l'Email Generata -->
+    <div id="email-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
+            <h3 class="text-xl font-bold mb-4">Bozza Email Generata ✨</h3>
+            <textarea id="email-content" class="w-full h-64 border border-gray-300 rounded-md p-2 mb-4" readonly></textarea>
+            <div class="flex justify-end space-x-4">
+                <button id="copy-email-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">Copia negli Appunti</button>
+                <button id="close-modal-btn" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Importaciones de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- CONFIGURACIÓN DE FIREBASE ---
+        // TODO: Reemplaza este objeto con la configuración de tu propio proyecto de Firebase
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_AUTH_DOMAIN",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_STORAGE_BUCKET",
+            messagingSenderId: "TU_MESSAGING_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const { jsPDF } = window.jspdf;
+
+            // --- LÓGICA DE LOGIN ---
+            const loginScreen = document.getElementById('login-screen');
+            const mainContent = document.getElementById('main-content');
+            const loginButton = document.getElementById('login-button');
+            const emailInput = document.getElementById('email-input');
+            const passwordInput = document.getElementById('password-input');
+            const loginError = document.getElementById('login-error');
+            
+            loginButton.addEventListener('click', () => {
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Signed in 
+                        loginScreen.classList.add('hidden');
+                        mainContent.classList.remove('hidden');
+                        document.body.style.backgroundColor = '#f3f4f6';
+                    })
+                    .catch((error) => {
+                        loginError.classList.remove('hidden');
+                        console.error("Error de autenticación:", error.message);
+                    });
+            });
+            
+            emailInput.addEventListener('input', () => loginError.classList.add('hidden'));
+            passwordInput.addEventListener('input', () => loginError.classList.add('hidden'));
+
+
+            // --- LOGICA DEL GENERATORE DI CONTRATTI ---
+
+            // Traducciones
+            const translations = {
+                es: {
+                    title: "CONTRATO DE ALQUILER",
+                    clientCode: "Código de Cliente:",
+                    clientName: "Contacto:",
+                    customerDataText: "El presente contrato se celebra con la entidad {fiscalName} (nombre comercial: {commercialName}), con número de identificación fiscal {vat} y domicilio en {address}, representado por {contactName} por un importe de {Total}.",
+                    sendDate: "Fecha de Envío/Recogida:",
+                    returnDate: "Fecha de Devolución:",
+                    dressName: "Nombre del Vestido",
+                    unitCost: "Coste Unitario",
+                    totalCost: "Coste Total:",
+                    termsTitle: "Términos y Condiciones"
+                },
+                en: {
+                    title: "RENTAL AGREEMENT",
+                    clientCode: "Client Code:",
+                    clientName: "Contact:",
+                    customerDataText: "This agreement is made with the entity {fiscalName} (commercial name: {commercialName}), with tax identification number {vat} and address at {address}, represented by {contactName} for a total amount of {Total}.",
+                    sendDate: "Dispatch/Pickup Date:",
+                    returnDate: "Return Date:",
+                    dressName: "Dress Name",
+                    unitCost: "Unit Cost",
+                    totalCost: "Total Cost:",
+                    termsTitle: "Terms and Conditions"
+                },
+                it: {
+                    title: "CONTRATTO Trunk Show 2025",
+                    clientCode: "Codice Cliente:",
+                    clientName: "Contatto:",
+                    customerDataText: `Da un lato, AP CUBED, S.L.U.*, con C.I.F. B09864760 e indirizzo in Calle Lagasca nº 99 Esc. B2, 8B2A, 28006 Madrid; di seguito "AP CUBED"; e, dall'altro lato, il fatto che {fiscalName}, P.I.: {vat} e domicilio in {address} con nome commerciale {commercialName} e codice cliente {clientCode}; a partire da adesso il CLIENTE.\n\nEntrambe le parti stipulano il presente accordo in seguito alla richiesta esplicita del CLIENTE ad AP CUBED SLU per il prestito temporaneo di abiti campione dallo stock per il Trunk Show 2025 Alberto Palatchi, da utilizzare in occasione di un evento o per la prova del cliente finale prima dell'ordine.\n\nIl presente Contratto si intende proposto da AP CUBED dal momento dell'invio all'indirizzo di posta elettronica fornito dal CLIENTE, abituale contatto tra le Parti, e si intende valido e accettato nel momento in cui il CLIENTE risponde per iscritto ed entro un termine massimo di 48 ore dall'invio, di accettare, senza riserve, via e-mail. La semplice ricezione del contratto non comporta alcuna accettazione o obbligo per nessuna delle parti. Nel caso in cui AP CUBED riceva il Contratto con riserve, modifiche o richieste particolari non incluse nello stesso, queste saranno automaticamente respinte e si intenderà automaticamente che il presente Contratto Trunk Show NON è stato accettato dal CLIENTE, con la conseguente mancata prenotazione degli abiti richiesti nel Contratto, il rifiuto della richiesta precedentemente effettuata dal CLIENTE e la mancata esecuzione del servizio di prestito temporaneo di abiti campione da parte di AP CUBED.\n\nAl ricevimento da parte di AP CUBED, via e-mail all'indirizzo di contatto abituale tra le Parti, della risposta valida di accettazione del Contratto e delle sue Condizioni Generali di Trunk Show, questo sarà automaticamente e pienamente valido ed efficace, in tutti i suoi contenuti. Indipendentemente dalla persona che richiede, contratta e accetta tramite e-mail valida il presente Contratto di Trunk Show e le sue Condizioni Generali, AP CUBED, in buona fede, comprenderà che è debitamente autorizzata a farlo, e il CLIENTE sarà obbligato a rispettarlo, a tutti gli effetti di legge, essendo il CLIENTE, l'unico pienamente responsabile dei suoi dipendenti e delle loro azioni.\nPertanto, data l'espressa richiesta da parte del CLIENTE ad AP CUBED SLU per il prestito temporaneo di abiti campione dallo stock per il Trunk Show 2025 Alberto Palatchi, entrambe le parti accettano i seguenti Termini e Condizioni Generali.\n\n*1 OGGETTO DEL CONTRATTO PREZZO SERVIZIO TRUNK SHOW.*\n\n AP CUBED fornirà al CLIENTE il servizio di Prestito Temporaneo di Campioni da Trunk Show, per un costo totale di *{Total}* euro. Il prezzo totale del servizio sarà comunicato al CLIENTE nella stessa e-mail di conferma della disponibilità del trunk show richiesto.\nIl servizio Trunk Show consiste nel prestito temporaneo di una selezione di abiti in stock del campionario della campagna in corso del marchio ALBERTO, collezione vigente, durante il periodo di tempo concordato al precedente punto 1. Servizio; AP CUBED manterrà in esclusiva la proprietà degli abiti riferiti e i diritti di proprietà industriale e intellettuale sugli stessi, sempre e comunque. \nAl fine di gestire correttamente le richieste di prestito di abiti campione, il CLIENTE dovrà comunicare ad AP CUBED la sfilata/evento/prova per la quale si richiede il Servizio Trunk Show, con almeno 30 giorni di anticipo, per la sua valutazione.\n\n*2 INVIO, CONSEGNE, RESTITUZIONI e ANNULLAMENTI*\n\nLa consegna e l'utilizzo degli abiti campione richiesti avverrà esclusivamente nei luoghi concordati a tale scopo al precedente punto 1. Servizio; e durante il periodo temporaneo concordato al suddetto punto 1. \nIl CLIENTE prende atto che gli abiti campione prestati da AP CUBED attraverso il servizio di Prestito Temporaneo di Campionario Trunk Show, non sono destinati alla vendita, ma il loro utilizzo in sfilate, eventi e prove nell'esercizio commerciale è finalizzato solo ed esclusivamente a promuovere la vendita del prodotto presso il punto vendita del CLIENTE. Qualsiasi utilizzo degli abiti del campionario non espressamente autorizzato da AP CUBED nel presente contratto sarà di piena ed esclusiva responsabilità del CLIENTE, così come le conseguenze e le responsabilità derivanti da tale utilizzo non autorizzato, sia nei confronti di terzi che di AP CUBED. \nUna volta ricevuti gli abiti campione, il CLIENTE dovrà firmare la bolla di consegna al corriere, segnalando sulla stessa se ha ricevuto gli abiti con danni o difetti nell'imballaggio, nonché informare immediatamente AP CUBED, fornendo fotografie e qualsiasi altro elemento che provi il danno segnalato. \nLa mancata segnalazione di tali danni al momento del ricevimento degli abiti implica l'inesistenza degli stessi e, pertanto, il CLIENTE sarà l'unico ed esclusivo responsabile nei confronti di AP CUBED per qualsiasi danno che gli abiti presentino.\nAl termine del periodo concordato per il servizio Trunk Show, il CLIENTE dovrà contattare AP CUBED e inviare via e-mail i dettagli dell'agenzia di trasporto e il numero di tracking della spedizione di ritorno degli abiti campione, e la data di arrivo della stessa presso le strutture di AP CUBED, il cui indirizzo è indicato al punto 1 di cui sopra. Il CLIENTE è responsabile della restituzione e della consegna degli abiti da campionario oggetto del presente contratto ad AP CUBED, al termine del servizio contrattato, nelle stesse perfette condizioni in cui li ha ricevuti, senza elementi commerciali esterni ad AP CUBED, in perfetto stato e adeguatamente protetti e imballati in modo che non subiscono alcun danno o danneggiamento nel processo di restituzione e trasporto alle strutture di AP CUBED.\nNel caso in cui gli abiti da campionario oggetto del presente contratto subiscono qualsiasi tipo di rottura o danneggiamento durante il servizio di Prestito Temporaneo di Trunk Show di campionario, il CLIENTE sarà l'unico responsabile e si farà carico del risarcimento a favore di AP CUBED corrispondente a tale danno. \nAP CUBED accetterà il recesso dal Contratto e l'annullamento del servizio di Prestito Temporaneo di Abiti da Sfilata solo se tale richiesta verrà comunicata dal CLIENTE, per iscritto via e-mail, almeno 14 giorni di calendario prima della data concordata per la consegna degli abiti da sfilata. Pertanto, nel caso in cui il CLIENTE comunichi il proprio recesso o la propria cancellazione dopo il suddetto periodo, esso non sarà accettato da AP CUBED che fatturerà al CLIENTE il 100% del prezzo totale del servizio contrattato, per la fornitura della totalità di tale servizio.\n\n*3 ALTRE RESPONSABILITÁ DEL CLIENTE*\n\nA) \t In caso di ritardo, per qualsiasi motivo, nella restituzione degli abiti da campionario oggetto del presente Contratto, il CLIENTE è tenuto a corrispondere ad AP CUBED l'importo risultante dalla moltiplicazione del prezzo totale del servizio di Prestito Temporaneo di Campionario Trunk Show contrattato per il numero di giorni di ritardo, indipendentemente dal numero di abiti da campionario interessati dal ritardo. Trascorsi 15 giorni di ritardo, gli abiti da campionario interessati dal ritardo saranno considerati persi o non restituiti, per cui oltre all'importo da pagare per il ritardo, si applicherà il seguente punto 3.B. e il CLIENTE dovrà pagare l'importo ivi stabilito per ciascuno degli abiti da campionario interessati. \nB) \t In caso di perdita o mancata restituzione, per qualsiasi motivo, degli abiti campione oggetto del presente contratto, il CLIENTE è tenuto a corrispondere a AP CUBED l'equivalente del doppio del prezzo di vendita al dettaglio consigliato da AP CUBED per ciascuno degli abiti campione interessati dalla perdita o dalla mancata restituzione. \nC) \t In caso di restituzione degli abiti campione oggetto del presente contratto, che presentino danni e/o difetti (tra cui sporco e/o macchie sul tessuto), rilevati da AP CUBED al momento dell'arrivo di tali abiti presso le proprie strutture, il CLIENTE è tenuto a corrispondere ad AP CUBED l'importo corrispondente alla riparazione di tali danni e/o difetti, compreso il servizio di lavanderia/lavaggio a secco, se applicabile. Nel caso in cui non sia possibile riparare tali danni e/o vizi, il CLIENTE è tenuto a pagare a AP CUBED l'importo corrispondente al prezzo di vendita al dettaglio. \nD) Inoltre, in caso di ritardi, perdite, mancate restituzioni, danni e/o danneggiamenti parziali o totali degli abiti da campionario, di cui ai precedenti punti 3.A., 3.B., e 3.C.; AP CUBED si riserva il diritto di fatturare e trasferire al CLIENTE il costo economico totale derivante dall'impossibilità di fornire il servizio di Prestito Temporaneo di Abiti da Campionario da parte di AP CUBED ad altri Clienti, per responsabilità e/o colpa attribuibile al CLIENTE. \n\n*4 VARIE*\n\n*(I)*\t AP CUBED si riserva il diritto di rifiutare e/o escludere, in qualsiasi momento e senza alcun costo aggiuntivo, qualsiasi abito campione oggetto del presente Contratto, nel caso in cui il CLIENTE non rispetti una qualsiasi delle Condizioni Generali di cui al presente Contratto, o non rispetti uno qualsiasi degli obblighi previsti dalle Condizioni Generali di Vendita di AP CUBED S.L., compresi i suoi obblighi di pagamento. La responsabilità di AP CUBED ai sensi del presente contratto, qualunque ne sia la causa, non potrà superare l'importo fatturato al CLIENTE per i servizi oggetto dello stesso, e in nessun caso potrà incorrere in responsabilità per perdita di profitti, mancato guadagno, danni consequenziali o qualsiasi altro danno indiretto. \n*(II)*\t Riservatezza e protezione dei dati personali (PDP) e dei diritti di proprietà industriale e intellettuale (PDPII). L'intero contenuto del presente Contratto e dei servizi forniti da AP CUBED, è strettamente e completamente confidenziale tra AP CUBED e il CLIENTE, e pertanto, entrambe le parti devono conservarlo, trattare e custodire come tale, in ogni momento, impegnandosi a mettere in atto tutte le misure tecniche e di sicurezza necessarie per preservare la riservatezza, PDP e PDPII, relative al presente documento, e il CLIENTE si impegna espressamente a non farne copia, a non riprodurlo, a non pubblicarlo, a non utilizzarlo per sé o per terzi al di fuori del rapporto di servizio di prestito campioni instaurato con AP CUBED. Il CLIENTE sarà esclusivamente ed interamente responsabile dei presenti obblighi di riservatezza e segretezza, PDP e PDPII per sé, nonché per i propri dipendenti e collaboratori. In caso di accertamento di una violazione di tali obblighi di riservatezza, PDP e PDPII, da parte del CLIENTE o di uno qualsiasi dei suoi dipendenti o collaboratori (compresi quelli che cessano di lavorare per e/o per conto del CLIENTE), AP CUBED si riserva tutti i diritti di risoluzione del presente Contratto e di cancellazione del Servizio di Prestito Campioni oggetto dello stesso, nonché di richiedere il relativo risarcimento per tutti i danni che fossero causati da eventuali inadempimenti del CLIENTE e/o dei suoi dipendenti o collaboratori. Il presente obbligo di riservatezza e segretezza, PDP e PDPII, resterà in vigore a tempo indeterminato, anche dopo la cessazione del rapporto e/o dei contratti tra le Parti. \n*(III)*\t Legge applicabile e giurisdizione. La legge applicabile al presente Contratto è quella spagnola. In caso di controversie relative al presente Contratto, entrambe le Parti accettano espressamente di sottoporsi alle Corti e ai Tribunali della città di Madrid (Spagna), rinunciando a qualsiasi altra giurisdizione che possa corrispondere loro.`,
+                    sendDate: "Data di Spedizione/Ritiro:",
+                    returnDate: "Data di Restituzione:",
+                    dressName: "Nome del Vestito",
+                    unitCost: "Costo Unitario",
+                    totalCost: "Costo Totale:",
+                    termsTitle: "Termini e Condizioni"
+                },
+                fr: {
+                    title: "CONTRAT DE LOCATION",
+                    clientCode: "Code Client:",
+                    clientName: "Contact:",
+                    customerDataText: "Le présent contrat est conclu avec l'entité {fiscalName} (nom commercial: {commercialName}), avec le numéro d'identification fiscale {vat} et domiciliée à {address}, representé par {contactName} pour un montant total de {Total}.",
+                    sendDate: "Date d'Envoi/Retrait:",
+                    returnDate: "Date de Retour:",
+                    dressName: "Nom de la Robe",
+                    unitCost: "Coût Unitaire",
+                    totalCost: "Coût Total:",
+                    termsTitle: "Termes et Conditions"
+                }
+            };
+            
+            const form = document.getElementById('contract-form');
+            const itemsContainer = document.getElementById('items-container');
+            const generatePdfBtn = document.getElementById('generate-pdf-btn');
+            const totalCostInput = document.getElementById('total-cost');
+            const clientCodeInput = document.getElementById('client-code');
+            const clientCodeError = document.getElementById('client-code-error');
+            let itemCounter = 0;
+
+            // --- Lógica para el modal de Gemini ---
+            const generateEmailBtn = document.getElementById('generate-email-btn');
+            const emailModal = document.getElementById('email-modal');
+            const emailContent = document.getElementById('email-content');
+            const copyEmailBtn = document.getElementById('copy-email-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            
+            closeModalBtn.addEventListener('click', () => emailModal.classList.add('hidden'));
+            copyEmailBtn.addEventListener('click', () => {
+                emailContent.select();
+                document.execCommand('copy');
+                copyEmailBtn.textContent = '¡Copiato!';
+                setTimeout(() => {
+                    copyEmailBtn.textContent = 'Copia negli Appunti';
+                }, 2000);
+            });
+
+
+            // Ocultar error al escribir en el campo de código de cliente
+            clientCodeInput.addEventListener('input', () => {
+                clientCodeError.classList.add('hidden');
+                generateEmailBtn.classList.add('hidden'); // Ocultar el botón de email si se cambia el código
+            });
+
+            // Función para actualizar el coste total
+            const updateTotalCost = () => {
+                let total = 0;
+                const itemCosts = document.querySelectorAll('.item-cost');
+                itemCosts.forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    total += value;
+                });
+                totalCostInput.value = `${total.toFixed(2)} €`;
+            };
+
+            // Función para añadir listeners a los nuevos elementos
+            const updateEventListeners = () => {
+                // Para eliminar un artículo
+                document.querySelectorAll('.remove-item-btn').forEach(button => {
+                    button.removeEventListener('click', handleRemoveItem);
+                    button.addEventListener('click', handleRemoveItem);
+                });
+
+                // Para añadir un nuevo artículo (ahora dinámico)
+                document.querySelectorAll('.add-item-btn').forEach(button => {
+                    button.removeEventListener('click', addNewItem);
+                    button.addEventListener('click', addNewItem);
+                });
+
+                // Para actualizar el coste total
+                document.querySelectorAll('.item-cost').forEach(input => {
+                    input.removeEventListener('input', updateTotalCost);
+                    input.addEventListener('input', updateTotalCost);
+                });
+            };
+            
+            const handleRemoveItem = (e) => {
+                const itemToRemove = e.target.closest('.item-row');
+                const wasLastItem = itemToRemove === itemsContainer.lastElementChild;
+
+                if (itemsContainer.children.length > 1) {
+                    itemToRemove.remove();
+                }
+
+                if (wasLastItem && itemsContainer.children.length > 0) {
+                    const newLastItemActions = itemsContainer.lastElementChild.querySelector('.actions-container');
+                    if (!newLastItemActions.querySelector('.add-item-btn')) {
+                        const addButton = document.createElement('button');
+                        addButton.type = 'button';
+                        addButton.className = 'btn-icon-add rounded-full p-2 add-item-btn';
+                        addButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>`;
+                        newLastItemActions.appendChild(addButton);
+                    }
+                }
+                
+                updateTotalCost();
+                updateEventListeners();
+            };
+
+            // Añadir un nuevo artículo
+            const addNewItem = () => {
+                // Quitar el botón de añadir del anterior último elemento
+                const lastAddButton = itemsContainer.querySelector('.add-item-btn');
+                if (lastAddButton) {
+                    lastAddButton.remove();
+                }
+
+                itemCounter++;
+                const newItem = document.createElement('div');
+                newItem.classList.add('grid', 'grid-cols-1', 'md:grid-cols-10', 'gap-4', 'items-center', 'item-row');
+                newItem.innerHTML = `
+                    <div class="md:col-span-5">
+                        <label class="text-sm font-medium text-gray-700 sr-only">Nome del Vestito</label>
+                        <input type="text" placeholder="Nome del Vestito ${itemCounter}" class="form-input w-full rounded-full item-name" required>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="text-sm font-medium text-gray-700 sr-only">Costo Unitario</label>
+                        <input type="number" placeholder="Costo Unitario (€)" min="0" step="0.01" class="form-input w-full rounded-full item-cost text-right" required>
+                    </div>
+                    <div class="md:col-span-2 text-center">
+                        <div class="flex justify-center items-center space-x-2 actions-container">
+                             <button type="button" class="btn-icon-remove rounded-full p-2 remove-item-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <button type="button" class="btn-icon-add rounded-full p-2 add-item-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                itemsContainer.appendChild(newItem);
+                updateEventListeners();
+            };
+
+            // Helper: cargar una imagen remota y devolver dataURL
+            const loadImageAsDataURL = (url) => {
+                return new Promise((resolve, reject) => {
+                    if (!url) return reject(new Error('No image URL'));
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.naturalWidth;
+                            canvas.height = img.naturalHeight;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            // Mantenemos el formato PNG para preservar la calidad y transparencia
+                            const dataURL = canvas.toDataURL('image/png'); 
+                            resolve({ dataURL, width: canvas.width, height: canvas.height });
+                        } catch (err) {
+                            reject(err);
+                        }
+                    };
+                    img.onerror = () => reject(new Error('Failed to load image'));
+                    img.src = url;
+                });
+            };
+            
+            // Helper: Imprimir texto con estilos mixtos (normal y negrita) y auto-wrap
+            const printMixedStyleText = (doc, textParts, x, y, maxWidth, lineHeight) => {
+                let currentX = x;
+                let currentY = y;
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const marginBottom = 20;
+
+                const checkPageBreak = () => {
+                    if (currentY > pageHeight - marginBottom) {
+                        doc.addPage();
+                        currentY = 20; // Reset Y to top margin on new page
+                        currentX = x;
+                    }
+                };
+
+                textParts.forEach(part => {
+                    if (part.style === 'break') {
+                        currentY += lineHeight;
+                        currentX = x;
+                        checkPageBreak();
+                        return;
+                    }
+                
+                    doc.setFont('helvetica', part.style || 'normal');
+                    const tokens = part.text.match(/\s+|\S+/g) || [];
+
+                    tokens.forEach(token => {
+                        const tokenWidth = doc.getStringUnitWidth(token) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                        
+                        checkPageBreak();
+
+                        if (currentX > x && currentX + tokenWidth > x + maxWidth && token.trim() !== '') {
+                            currentY += lineHeight;
+                            currentX = x;
+                            checkPageBreak();
+                        }
+                        
+                        if (currentX === x && token.trim() === '') {
+                           return; // No imprimir espacios al inicio de una nueva línea
+                        }
+
+                        doc.text(token, currentX, currentY);
+                        currentX += tokenWidth;
+                    });
+                });
+                return currentY;
+            };
+
+             // --- Lógica de Gemini ---
+            generateEmailBtn.addEventListener('click', async () => {
+                generateEmailBtn.textContent = 'Generando...';
+                generateEmailBtn.disabled = true;
+
+                const contactName = document.getElementById('contact-name').value;
+                const sendDate = document.getElementById('send-date').value;
+                const returnDate = document.getElementById('return-date').value;
+                const totalCost = totalCostInput.value;
+                const items = Array.from(document.querySelectorAll('.item-name')).map(input => input.value).join(', ');
+
+                const prompt = `Escribe un email profesional y amable en español para un cliente llamado ${contactName}. Informa que se adjunta su contrato de alquiler para los siguientes artículos: ${items}. Las fechas del alquiler son desde el ${sendDate} hasta el ${returnDate}. Menciona que el coste total es de ${totalCost}. Finaliza el email de forma cordial.`;
+
+                try {
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                    
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                    };
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    const generatedText = result.candidates[0].content.parts[0].text;
+                    
+                    emailContent.value = generatedText;
+                    emailModal.classList.remove('hidden');
+
+                } catch (error) {
+                    console.error("Error al llamar a la API de Gemini:", error);
+                    emailContent.value = "Hubo un error al generar el email. Por favor, inténtalo de nuevo.";
+                    emailModal.classList.remove('hidden');
+                } finally {
+                    generateEmailBtn.textContent = 'Redactar Email de Seguimiento ✨';
+                    generateEmailBtn.disabled = false;
+                }
+            });
+
+
+            // Generar el PDF (ahora async para poder await la carga del logo)
+            generatePdfBtn.addEventListener('click', async () => {
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const clientCode = document.getElementById('client-code').value;
+                 // Validar si el cliente existe en la BD
+                const customerData = await (async () => {
+                    const docRef = doc(db, "customers", clientCode);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        clientCodeError.classList.add('hidden');
+                        return docSnap.data();
+                    } else {
+                        clientCodeError.classList.remove('hidden');
+                        generateEmailBtn.classList.add('hidden');
+                        return null;
+                    }
+                })();
+
+                if (!customerData) return;
+
+
+                const doc = new jsPDF();
+                const pageWidth = doc.internal.pageSize.getWidth();
+
+                const selectedLang = document.getElementById('language').value;
+                const T = translations[selectedLang];
+
+                // Obtener datos del formulario
+                const contactName = document.getElementById('contact-name').value;
+                const sendDate = document.getElementById('send-date').value;
+                const returnDate = document.getElementById('return-date').value;
+                const totalCost = totalCostInput.value;
+
+                // Intentar cargar el logo mostrado en la cabecera y añadirlo centrado en el PDF
+                const logoEl = document.getElementById('logo');
+                let titleY = 20; // valor por defecto si no hay logo
+                let dateY;
+                try {
+                    if (logoEl && logoEl.src) {
+                        const logoData = await loadImageAsDataURL(logoEl.src);
+                        // Definir ancho en mm (ajusta según necesites)
+                        const logoDisplayWidth = 50;
+                        const aspect = logoData.height / logoData.width;
+                        const logoDisplayHeight = logoDisplayWidth * aspect;
+                        const x = pageWidth - logoDisplayWidth - 14; // ALINEAR A LA DERECHA
+                        const y = 10; // margen superior
+                        doc.addImage(logoData.dataURL, 'PNG', x, y, logoDisplayWidth, logoDisplayHeight); // Usar PNG
+                        titleY = y + logoDisplayHeight + 25; // MÁS ESPACIO
+                    }
+                } catch (err) {
+                    console.warn('No se pudo cargar el logo para el PDF:', err);
+                }
+
+                // Título (centrado)
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(T.title, pageWidth / 2, titleY, { align: 'center' });
+
+                // Fecha de hoy (automática) - DEBAJO del título a la izquierda
+                const today = new Date();
+                const formattedDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                dateY = titleY + 8; // Posición Y debajo del título
+                doc.text(formattedDate, 14, dateY, { align: 'left' });
+
+                // Información del Cliente y Fechas (etiqueta normal, valor en negrita)
+                const xStart = 14;
+                let yPos = dateY + 12; // Inicia después de la fecha
+                doc.setFontSize(8);
+
+                const formatInputDate = (dateStr) => {
+                    if (!dateStr) return '';
+                    const [year, month, day] = dateStr.split('-');
+                    return `${day}/${month}/${year}`;
+                };
+
+                const printLabelValue = (label, value) => {
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(label, xStart, yPos);
+                    const labelWidth = doc.getStringUnitWidth(label) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                    
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(value, xStart + labelWidth, yPos);
+                    yPos += 5; // Espacio entre líneas reducido
+                };
+
+                let displayClientCode = clientCode;
+                if (customerData && customerData.nombreComercial) {
+                    displayClientCode = `${clientCode} - ${customerData.nombreComercial}`;
+                }
+                printLabelValue(T.clientCode + " ", displayClientCode);
+                printLabelValue(T.clientName + " ", contactName);
+                printLabelValue(T.sendDate + " ", formatInputDate(sendDate));
+                printLabelValue(T.returnDate + " ", formatInputDate(returnDate));
+
+
+                // Tabla de artículos (contenido en negrita)
+                const tableColumn = [T.dressName, T.unitCost];
+                const tableRows = [];
+
+                document.querySelectorAll('.item-row').forEach(row => {
+                    const name = row.querySelector('.item-name').value;
+                    const cost = parseFloat(row.querySelector('.item-cost').value || 0).toFixed(2) + " €";
+                    tableRows.push([name, cost]);
+                });
+
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    foot: [
+                        [{ content: T.totalCost, styles: { halign: 'right' } }, { content: totalCost, styles: { halign: 'right' } }]
+                    ],
+                    startY: yPos + 5, // Usar la nueva posición de Y
+                    theme: 'grid',
+                    headStyles: { fillColor: [172, 180, 172], fontSize: 8 },
+                    styles: { fontStyle: 'bold', fontSize: 8 },
+                    footStyles: { fontStyle: 'bold', fontSize: 9, textColor: [0, 0, 0], fillColor: [240, 240, 240] },
+                    columnStyles: {
+                        1: { cellWidth: 40, halign: 'right' } // Columna de precio más estrecha y alineada a la derecha
+                    }
+                });
+
+                // Coste Total ahora está en el footer de la tabla
+                let finalY = doc.autoTable.previous.finalY;
+                
+                // Términos y Condiciones
+                let termsYPos = finalY + 15; // Posicionado relativo al final de la tabla
+                
+                if (termsYPos > doc.internal.pageSize.getHeight() - 40) {
+                    doc.addPage();
+                    termsYPos = 20;
+                }
+
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text(T.termsTitle, 14, termsYPos);
+                
+                let lastY = termsYPos + 8;
+
+                // MOVED: Buscar datos del cliente en la base de datos y ponerlos aquí
+                if (customerData) {
+                    const textParts = [];
+                    const regex = /(\*.*?\*)|(\{.*?\})|(\n)/g;
+                    
+                    const placeholders = {
+                        '{fiscalName}': customerData.nombreFiscal,
+                        '{commercialName}': customerData.nombreComercial,
+                        '{vat}': customerData.vat,
+                        '{address}': customerData.direccion,
+                        '{contactName}': contactName,
+                        '{clientCode}': clientCode,
+                        '{Total}': totalCost
+                    };
+                    
+                    let processedText = T.customerDataText;
+                     // Primero, reemplazar todos los placeholders
+                    for(const key in placeholders){
+                        processedText = processedText.replace(new RegExp(key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), placeholders[key]);
+                    }
+
+                    const splitText = processedText.split(/(\*.*?\*|\n)/g).filter(Boolean);
+
+                    splitText.forEach(segment => {
+                        if (segment === '\n') {
+                            textParts.push({ text: '\n', style: 'break' });
+                        } else if (segment.startsWith('*') && segment.endsWith('*')) {
+                            textParts.push({ text: segment.slice(1, -1), style: 'bold' });
+                        } else {
+                            textParts.push({ text: segment, style: 'normal' });
+                        }
+                    });
+                    
+                    doc.setFontSize(8);
+                    lastY = printMixedStyleText(doc, textParts, 14, lastY, pageWidth - 28, 4);
+                }
+
+                // Guardar el PDF
+                const todayForFilename = new Date();
+                const day = todayForFilename.getDate().toString().padStart(2, '0');
+                const month = (todayForFilename.getMonth() + 1).toString().padStart(2, '0');
+                const year = todayForFilename.getFullYear();
+                const formattedDateForFilename = `${day}-${month}-${year}`;
+                
+                const commercialName = customerData ? customerData.nombreComercial.replace(/\s+/g, '_') : 'cliente';
+                const filename = `${clientCode}-${commercialName}-${formattedDateForFilename}.pdf`;
+                
+                doc.save(filename);
+
+
+                // Mostrar el botón de Gemini
+                generateEmailBtn.classList.remove('hidden');
+            });
+
+            // Añadir un artículo inicial al cargar la página
+            addNewItem();
+        });
+    </script>
+</body>
+</html>
+
