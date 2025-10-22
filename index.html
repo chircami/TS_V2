@@ -131,7 +131,7 @@
                             <input type="text" id="contact-name" class="form-input w-full rounded-full" placeholder="Ej: Olivier Thebest" required>
                         </div>
                         <div>
-                            <label for="send-date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Envío / Recogida</label>
+                            <label for="send-date" class="block text-sm font-medium text-gray-700 mb-1">Fecha de entrega</label>
                             <input type="date" id="send-date" class="form-input w-full rounded-full" required>
                         </div>
                         <div>
@@ -143,7 +143,7 @@
                     <!-- Sección de Artículos (Vestidos) -->
                     <div class="border-t border-gray-200 pt-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold">Vestidos o referencias LP/TS</h2>
+                            <h2 class="text-xl font-semibold">Referencias o sku</h2>
                         </div>
                         <div id="items-container" class="space-y-4">
                             <!-- Los artículos se añadirán aquí dinámicamente -->
@@ -375,7 +375,7 @@ D) Inoltre, in caso di ritardi, perdite, mancate restituzioni, danni e/o dannegg
                 newItem.innerHTML = `
                     <div class="md:col-span-5">
                         <label class="text-sm font-medium text-gray-700 sr-only">Nome del Vestito</label>
-                        <input type="text" placeholder="Nombre/Referencia/SKU ${itemCounter}" class="form-input w-full rounded-full item-name" required>
+                        <input type="text" placeholder="Referencia ${itemCounter}" class="form-input w-full rounded-full item-name" required>
                     </div>
                     <div class="md:col-span-3">
                         <label class="text-sm font-medium text-gray-700 sr-only">Costo Unitario</label>
