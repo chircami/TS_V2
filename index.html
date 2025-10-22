@@ -19,7 +19,6 @@
         .form-input, .form-select {
             transition: border-color 0.3s ease;
             border: 1px solid #111827; /* Borde negro fino y minimalista */
-            /* --- AQUÍ PUEDES CAMBIAR LA ALTURA Y EL ESPACIADO INTERIOR --- */
             padding-top: 0.75rem;
             padding-bottom: 0.75rem;
             padding-left: 0.75rem; /* Espaciado interior izquierdo */
@@ -159,8 +158,8 @@
                          </div>
                     </div>
                     
-                    <!-- Botón de Generar PDF -->
-                    <div class="text-center pt-4">
+                    <!-- Botones de Acción -->
+                    <div class="text-center pt-4 space-y-4">
                         <button type="button" id="generate-pdf-btn" class="btn-primary font-bold py-3 px-8 rounded-full text-lg shadow-lg">
                             Generar Contrato PDF
                         </button>
@@ -245,10 +244,37 @@
                     title: "CONTRATTO Trunk Show 2025",
                     clientCode: "Codice Cliente:",
                     clientName: "Contatto:",
-                    customerDataText: "*DATI DELLE PARTI*\nDa un lato, AP CUBED, S.L.U., con C.I.F. B09864760 e indirizzo in Calle Lagasca nº 99 Esc. B2, 8B2A, 28006 Madrid; di seguito AP CUBED; e, dall'altro lato, {fiscalName} (nome commerciale: {commercialName}), P.I.: {vat} e domicilio in {address}. Rappresentato da {contactName} (codice cliente: {clientCode}).\n\n*CONDIZIONI PARTICOLARI*\nIl cliente accetta le seguenti condizioni per un importo totale di {Total}.",
+                    customerDataText: `CONTRATTO e TERMINI E CONDIZIONI Trunk Show 2025  
+Da un lato, *AP CUBED, S.L.U.*, con C.I.F. B09864760 e indirizzo in Calle Lagasca nº 99 Esc. B2, 8B2A, 28006 Madrid; di seguito "AP CUBED"; e, dall'altro lato, il fatto che {fiscalName}, P.I.: {vat} e domicilio in {address} con nome commerciale {commercialName} e codice cliente {clientCode}; a partire da adesso il CLIENTE.\n\n
+Entrambe le parti stipulano il presente accordo in seguito alla richiesta esplicita del CLIENTE ad AP CUBED SLU per il prestito temporaneo di abiti campione dallo stock per il Trunk Show 2025 Alberto Palatchi, da utilizzare in occasione di un evento o per la prova del cliente finale prima dell'ordine.\n\n
+Il presente Contratto si intende proposto da AP CUBED dal momento dell'invio all'indirizzo di posta elettronica fornito dal CLIENTE, abituale contatto tra le Parti, e si intende valido e accettato nel momento in cui il CLIENTE risponde per iscritto ed entro un termine massimo di 48 ore dall'invio, di accettare, senza riserve, via e-mail. La semplice ricezione del contratto non comporta alcuna accettazione o obbligo per nessuna delle parti. Nel caso in cui AP CUBED riceva il Contratto con riserve, modifiche o richieste particolari non incluse nello stesso, queste saranno automaticamente respinte e si intenderà automaticamente che il presente Contratto Trunk Show NON è stato accettato dal CLIENTE, con la conseguente mancata prenotazione degli abiti richiesti nel Contratto, il rifiuto della richiesta precedentemente effettuata dal CLIENTE e la mancata esecuzione del servizio di prestito temporaneo di abiti campione da parte di AP CUBED.\n\n
+Al ricevimento da parte di AP CUBED, via e-mail all'indirizzo di contatto abituale tra le Parti, della risposta valida di accettazione del Contratto e delle sue Condizioni Generali di Trunk Show, questo sarà automaticamente e pienamente valido ed efficace, in tutti i suoi contenuti. Indipendentemente dalla persona che richiede, contratta e accetta tramite e-mail valida il presente Contratto di Trunk Show e le sue Condizioni Generali, AP CUBED, in buona fede, comprenderà che è debitamente autorizzata a farlo, e il CLIENTE sarà obbligato a rispettarlo, a tutti gli effetti di legge, essendo il CLIENTE, l'unico pienamente responsabile dei suoi dipendenti e delle loro azioni.\n
+Pertanto, data l'espressa richiesta da parte del CLIENTE ad AP CUBED SLU per il prestito temporaneo di abiti campione dallo stock per il Trunk Show 2025 Alberto Palatchi, entrambe le parti accettano i seguenti Termini e Condizioni Generali.\n\n
+ 
+*1 OGGETTO DEL CONTRATTO. PREZZO SERVIZIO TRUNK SHOW.*\n
+AP CUBED fornirà al CLIENTE il servizio di Prestito Temporaneo di Campioni da Trunk Show, per un costo totale di *{Total}* euro. Il prezzo totale del servizio sarà comunicato al CLIENTE nella stessa e-mail di conferma della disponibilità del trunk show richiesto.\n
+Il servizio Trunk Show consiste nel prestito temporaneo di una selezione di abiti in stock del campionario della campagna in corso del marchio ALBERTO, collezione vigente, durante il periodo di tempo concordato al precedente punto 1. Servizio; AP CUBED manterrà in esclusiva la proprietà degli abiti riferiti e i diritti di proprietà industriale e intellettuale sugli stessi, sempre e comunque. 
+Al fine di gestire correttamente le richieste di prestito di abiti campione, il CLIENTE dovrà comunicare ad AP CUBED la sfilata/evento/prova per la quale si richiede il Servizio Trunk Show, con almeno 30 giorni di anticipo, per la sua valutazione.\n\n
+*2 INVIO, CONSEGNE, RESTITUZIONI e ANNULLAMENTI*\n
+La consegna e l'utilizzo degli abiti campione richiesti avverrà esclusivamente nei luoghi concordati a tale scopo al precedente punto 1. Servizio; e durante il periodo temporaneo concordato al suddetto punto 1. \n
+Il CLIENTE prende atto che gli abiti campione prestati da AP CUBED attraverso il servizio di Prestito Temporaneo di Campionario Trunk Show, non sono destinati alla vendita, ma il loro utilizzo in sfilate, eventi e prove nell'esercizio commerciale è finalizzato solo ed esclusivamente a promuovere la vendita del prodotto presso il punto vendita del CLIENTE. Qualsiasi utilizzo degli abiti del campionario non espressamente autorizzato da AP CUBED nel presente contratto sarà di piena ed esclusiva responsabilità del CLIENTE, così come le conseguenze e le responsabilità derivanti da tale utilizzo non autorizzato, sia nei confronti di terzi che di AP CUBED. \n
+Una volta ricevuti gli abiti campione, il CLIENTE dovrà firmare la bolla di consegna al corriere, segnalando sulla stessa se ha ricevuto gli abiti con danni o difetti nell'imballaggio, nonché informare immediatamente AP CUBED, fornendo fotografie e qualsiasi altro elemento che provi il danno segnalato. \n
+La mancata segnalazione di tali danni al momento del ricevimento degli abiti implica l'inesistenza degli stessi e, pertanto, il CLIENTE sarà l'unico ed esclusivo responsabile nei confronti di AP CUBED per qualsiasi danno che gli abiti presentino.\n
+Al termine del periodo concordato per il servizio Trunk Show, il CLIENTE dovrà contattare AP CUBED e inviare via e-mail i dettagli dell'agenzia di trasporto e il numero di tracking della spedizione di ritorno degli abiti campione, e la data di arrivo della stessa presso le strutture di AP CUBED, il cui indirizzo è indicato al punto 1 di cui sopra. Il CLIENTE è responsabile della restituzione e della consegna degli abiti da campionario oggetto del presente contratto ad AP CUBED, al termine del servizio contrattato, nelle stesse perfette condizioni in cui li ha ricevuti, senza elementi commerciali esterni ad AP CUBED, in perfetto stato e adeguatamente protetti e imballati in modo che non subiscono alcun danno o danneggiamento nel processo di restituzione e trasporto alle strutture di AP CUBED.\n
+Nel caso in cui gli abiti da campionario oggetto del presente contratto subiscono qualsiasi tipo di rottura o danneggiamento durante il servizio di Prestito Temporaneo di Trunk Show di campionario, il CLIENTE sarà l'unico responsabile e si farà carico del risarcimento a favore di AP CUBED corrispondente a tale danno. \n
+AP CUBED accetterà il recesso dal Contratto e l'annullamento del servizio di Prestito Temporaneo di Abiti da Sfilata solo se tale richiesta verrà comunicata dal CLIENTE, per iscritto via e-mail, almeno 14 giorni di calendario prima della data concordata per la consegna degli abiti da sfilata. Pertanto, nel caso in cui il CLIENTE comunichi il proprio recesso o la propria cancellazione dopo il suddetto periodo, esso non sarà accettato da AP CUBED che fatturerà al CLIENTE il 100% del prezzo totale del servizio contrattato, per la fornitura della totalità di tale servizio.\n\n
+*3 ALTRE RESPONSABILITÁ DEL CLIENTE*\n
+A)   In caso di ritardo, per qualsiasi motivo, nella restituzione degli abiti da campionario oggetto del presente Contratto, il CLIENTE è tenuto a corrispondere ad AP CUBED l'importo risultante dalla moltiplicazione del prezzo totale del servizio di Prestito Temporaneo di Campionario Trunk Show contrattato per il numero di giorni di ritardo, indipendentemente dal numero di abiti da campionario interessati dal ritardo. Trascorsi 15 giorni di ritardo, gli abiti da campionario interessati dal ritardo saranno considerati persi o non restituiti, per cui oltre all'importo da pagare per il ritardo, si applicherà il seguente punto 3.B. e il CLIENTE dovrà pagare l'importo ivi stabilito per ciascuno degli abiti da campionario interessati. \n
+B)   In caso di perdita o mancata restituzione, per qualsiasi motivo, degli abiti campione oggetto del presente contratto, il CLIENTE è tenuto a corrispondere a AP CUBED l'equivalente del doppio del prezzo di vendita al dettaglio consigliato da AP CUBED per ciascuno degli abiti campione interessati dalla perdita o dalla mancata restituzione. \n
+C)   In caso di restituzione degli abiti campione oggetto del presente contratto, che presentino danni e/o difetti (tra cui sporco e/o macchie sul tessuto), rilevati da AP CUBED al momento dell'arrivo di tali abiti presso le proprie strutture, il CLIENTE è tenuto a corrispondere ad AP CUBED l'importo corrispondente alla riparazione di tali danni e/o difetti, compreso il servizio di lavanderia/lavaggio a secco, se applicabile. Nel caso in cui non sia possibile riparare tali danni e/o vizi, il CLIENTE è tenuto a pagare a AP CUBED l'importo corrispondente al prezzo di vendita al dettaglio. \n
+D) Inoltre, in caso di ritardi, perdite, mancate restituzioni, danni e/o danneggiamenti parziali o totali degli abiti da campionario, di cui ai precedenti punti 3.A., 3.B., e 3.C.; AP CUBED si riserva il diritto di fatturare e trasferire al CLIENTE il costo economico totale derivante dall'impossibilità di fornire il servizio di Prestito Temporaneo di Abiti da Campionario da parte di AP CUBED ad altri Clienti, per responsabilità e/o colpa attribuibile al CLIENTE. \n\n
+*4 VARIE*\n
+(I)    AP CUBED si riserva il diritto di rifiutare e/o escludere, in qualsiasi momento e senza alcun costo aggiuntivo, qualsiasi abito campione oggetto del presente Contratto, nel caso in cui il CLIENTE non rispetti una qualsiasi delle Condizioni Generali di cui al presente Contratto, o non rispetti uno qualsiasi degli obblighi previsti dalle Condizioni Generali di Vendita di AP CUBED S.L., compresi i suoi obblighi di pagamento. La responsabilità di AP CUBED ai sensi del presente contratto, qualunque ne sia la causa, non potrà superare l'importo fatturato al CLIENTE per i servizi oggetto dello stesso, e in nessun caso potrà incorrere in responsabilità per perdita di profitti, mancato guadagno, danni consequenziali o qualsiasi altro danno indiretto.AP CUBED si riserva il diritto di rifiutare e/o escludere, in qualsiasi momento e senza alcun costo aggiuntivo, qualsiasi abito campione oggetto del presente Contratto, nel caso in cui il CLIENTE non rispetti una qualsiasi delle Condizioni Generali di cui al presente Contratto, o non rispetti uno qualsiasi degli obblighi previsti dalle Condizioni Generali di Vendita di AP CUBED S.L., compresi i suoi obblighi di pagamento. La responsabilità di AP CUBED ai sensi del presente contratto, qualunque ne sia la causa, non potrà superare l'importo fatturato al CLIENTE per i servizi oggetto dello stesso, e in nessun caso potrà incorrere in responsabilità per perdita di profitti, mancato guadagno, danni consequenziali o qualsiasi altro danno indiretto.AP CUBED si riserva il diritto di rifiutare e/o escludere, in qualsiasi momento e senza alcun costo aggiuntivo, qualsiasi abito campione oggetto del presente Contratto, nel caso in cui il CLIENTE non rispetti una qualsiasi delle Condizioni Generali di cui al presente Contratto, o non rispetti uno qualsiasi degli obblighi previsti dalle Condizioni Generali di Vendita di AP CUBED S.L., compresi i suoi obblighi di pagamento. La responsabilità di AP CUBED ai sensi del presente contratto, qualunque ne sia la causa, non potrà superare l'importo fatturato al CLIENTE per i servizi oggetto dello stesso, e in nessun caso potrà incorrere in responsabilità per perdita di profitti, mancato guadagno, danni consequenziali o qualsiasi altro danno indiretto. \n
+(II)     Riservatezza e protezione dei dati personali (PDP) e dei diritti di proprietà industriale e intellettuale (PDPII). L'intero contenuto del presente Contratto e dei servizi forniti da AP CUBED, è strettamente e completamente confidenziale tra AP CUBED e il CLIENTE, e pertanto, entrambe le parti devono conservarlo, trattare e custodire come tale, in ogni momento, impegnandosi a mettere in atto tutte le misure tecniche e di sicurezza necessarie per preservare la riservatezza, PDP e PDPII, relative al presente documento, e il CLIENTE si impegna espressamente a non farne copia, a non riprodurlo, a non pubblicarlo, a non utilizzarlo per sé o per terzi al di fuori del rapporto di servizio di prestito campioni instaurato con AP CUBED. Il CLIENTE sarà esclusivamente ed interamente responsabile dei presenti obblighi di riservatezza e segretezza, PDP e PDPII per sé, nonché per i propri dipendenti e collaboratori. In caso di accertamento di una violazione di tali obblighi di riservatezza, PDP e PDPII, da parte del CLIENTE o di uno qualsiasi dei suoi dipendenti o collaboratori (compresi quelli che cessano di lavorare per e/o per conto del CLIENTE), AP CUBED si riserva tutti i diritti di risoluzione del presente Contratto e di cancellazione del Servizio di Prestito Campioni oggetto dello stesso, nonché di richiedere il relativo risarcimento per tutti i danni che fossero causati da eventuali inadempimenti del CLIENTE e/o dei suoi dipendenti o collaboratori. Il presente obbligo di riservatezza e segretezza, PDP e PDPII, resterà in vigore a tempo indeterminato, anche dopo la cessazione del rapporto e/o dei contratti tra le Parti. \n
+(III)  Legge applicabile e giurisdizione. La legge applicabile al presente Contratto è quella spagnola. In caso di controversie relative al presente Contratto, entrambe le Parti accettano espressamente di sottoporsi alle Corti e ai Tribunali della città di Madrid (Spagna), rinunciando a qualsiasi altra giurisdizione che possa corrispondere loro.`,
                     sendDate: "Data di Spedizione/Ritiro:",
                     returnDate: "Data di Restituzione:",
-                    dressName: "Nome del Vestido",
+                    dressName: "Nome del Vestito",
                     unitCost: "Costo Unitario",
                     totalCost: "Costo Totale:",
                     termsTitle: "Termini e Condizioni"
@@ -348,12 +374,12 @@
                 newItem.classList.add('grid', 'grid-cols-1', 'md:grid-cols-10', 'gap-4', 'items-center', 'item-row');
                 newItem.innerHTML = `
                     <div class="md:col-span-5">
-                        <label class="text-sm font-medium text-gray-700 sr-only">Nombre del Vestido</label>
-                        <input type="text" placeholder="Nombre del Vestido ${itemCounter}" class="form-input w-full rounded-full item-name" required>
+                        <label class="text-sm font-medium text-gray-700 sr-only">Nome del Vestito</label>
+                        <input type="text" placeholder="Nome del Vestito ${itemCounter}" class="form-input w-full rounded-full item-name" required>
                     </div>
                     <div class="md:col-span-3">
-                        <label class="text-sm font-medium text-gray-700 sr-only">Coste Unitario</label>
-                        <input type="number" placeholder="Coste Unitario (€)" min="0" step="0.01" class="form-input w-full rounded-full item-cost text-right" required>
+                        <label class="text-sm font-medium text-gray-700 sr-only">Costo Unitario</label>
+                        <input type="number" placeholder="Costo Unitario (€)" min="0" step="0.01" class="form-input w-full rounded-full item-cost text-right" required>
                     </div>
                     <div class="md:col-span-2 text-center">
                         <div class="flex justify-center items-center space-x-2 actions-container">
@@ -403,11 +429,22 @@
             const printMixedStyleText = (doc, textParts, x, y, maxWidth, lineHeight) => {
                 let currentX = x;
                 let currentY = y;
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const marginBottom = 20;
+
+                const checkPageBreak = () => {
+                    if (currentY > pageHeight - marginBottom) {
+                        doc.addPage();
+                        currentY = 20; // Reset Y to top margin on new page
+                        currentX = x;
+                    }
+                };
 
                 textParts.forEach(part => {
                     if (part.style === 'break') {
                         currentY += lineHeight;
                         currentX = x;
+                        checkPageBreak();
                         return;
                     }
                 
@@ -416,10 +453,13 @@
 
                     tokens.forEach(token => {
                         const tokenWidth = doc.getStringUnitWidth(token) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                        
+                        checkPageBreak();
 
                         if (currentX > x && currentX + tokenWidth > x + maxWidth && token.trim() !== '') {
                             currentY += lineHeight;
                             currentX = x;
+                            checkPageBreak();
                         }
                         
                         if (currentX === x && token.trim() === '') {
@@ -433,6 +473,7 @@
                 return currentY;
             };
 
+
             // Generar el PDF (ahora async para poder await la carga del logo)
             generatePdfBtn.addEventListener('click', async () => {
                 if (!form.checkValidity()) {
@@ -442,12 +483,14 @@
                 
                 const clientCode = document.getElementById('client-code').value;
                  // Validar si el cliente existe en la BD
-                if (!customerDatabase[clientCode]) {
+                const customerData = customerDatabase[clientCode];
+                if (!customerData) {
                     clientCodeError.classList.remove('hidden');
                     return;
                 } else {
                     clientCodeError.classList.add('hidden');
                 }
+
 
                 const doc = new jsPDF();
                 const pageWidth = doc.internal.pageSize.getWidth();
@@ -460,10 +503,6 @@
                 const sendDate = document.getElementById('send-date').value;
                 const returnDate = document.getElementById('return-date').value;
                 const totalCost = totalCostInput.value;
-
-
-                 // Buscar datos del cliente en la base de datos UNA SOLA VEZ
-                const customerData = customerDatabase[clientCode];
 
                 // Intentar cargar el logo mostrado en la cabecera y añadirlo centrado en el PDF
                 const logoEl = document.getElementById('logo');
@@ -478,7 +517,7 @@
                         const logoDisplayHeight = logoDisplayWidth * aspect;
                         const x = pageWidth - logoDisplayWidth - 14; // ALINEAR A LA DERECHA
                         const y = 10; // margen superior
-                        doc.addImage(logoData.dataURL, 'PNG', x, y, logoDisplayHeight); // Usar PNG
+                        doc.addImage(logoData.dataURL, 'PNG', x, y, logoDisplayWidth, logoDisplayHeight); // Usar PNG
                         titleY = y + logoDisplayHeight + 25; // MÁS ESPACIO
                     }
                 } catch (err) {
@@ -557,16 +596,15 @@
 
                 // Coste Total ahora está en el footer de la tabla
                 let finalY = doc.autoTable.previous.finalY;
-                const pageHeight = doc.internal.pageSize.getHeight();
-
-                // --- FIX: Check if we need a new page for the footer content ---
-                if (finalY > pageHeight - 60) { // 60mm space needed for total + terms
-                    doc.addPage();
-                    finalY = 20; // Reset Y to top margin on new page
-                }
-
+                
                 // Términos y Condiciones
                 let termsYPos = finalY + 15; // Posicionado relativo al final de la tabla
+                
+                if (termsYPos > doc.internal.pageSize.getHeight() - 40) {
+                    doc.addPage();
+                    termsYPos = 20;
+                }
+
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'bold');
                 doc.text(T.termsTitle, 14, termsYPos);
@@ -578,8 +616,7 @@
                     const textParts = [];
                     // Regex para capturar *títulos*, {variables} y \n (saltos de línea)
                     const regex = /(\*.*?\*)|(\{.*?\})|(\n)/g;
-                    const splitText = T.customerDataText.split(regex).filter(Boolean);
-
+                    
                     const placeholders = {
                         '{fiscalName}': customerData.nombreFiscal,
                         '{commercialName}': customerData.nombreComercial,
@@ -589,14 +626,20 @@
                         '{clientCode}': clientCode,
                         '{Total}': totalCost
                     };
+                    
+                    let processedText = T.customerDataText;
+                     // Primero, reemplazar todos los placeholders
+                    for(const key in placeholders){
+                        processedText = processedText.replace(new RegExp(key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), placeholders[key]);
+                    }
+
+                    const splitText = processedText.split(/(\*.*?\*|\n)/g).filter(Boolean);
 
                     splitText.forEach(segment => {
                         if (segment === '\n') {
                             textParts.push({ text: '\n', style: 'break' });
                         } else if (segment.startsWith('*') && segment.endsWith('*')) {
                             textParts.push({ text: segment.slice(1, -1), style: 'bold' });
-                        } else if (placeholders[segment]) {
-                            textParts.push({ text: placeholders[segment], style: 'bold' });
                         } else {
                             textParts.push({ text: segment, style: 'normal' });
                         }
@@ -607,7 +650,17 @@
                 }
 
                 // Guardar el PDF
-                doc.save(`contrato_${contactName.replace(/\s+/g, '_') || 'contacto'}.pdf`);
+                const todayForFilename = new Date();
+                const day = todayForFilename.getDate().toString().padStart(2, '0');
+                const month = (todayForFilename.getMonth() + 1).toString().padStart(2, '0');
+                const year = todayForFilename.getFullYear();
+                const formattedDateForFilename = `${day}-${month}-${year}`;
+                
+                const commercialName = customerData ? customerData.nombreComercial.replace(/\s+/g, '_') : 'cliente';
+                const filename = `${clientCode}-${commercialName}-${formattedDateForFilename}.pdf`;
+                
+                doc.save(filename);
+
             });
 
             // Añadir un artículo inicial al cargar la página
@@ -616,3 +669,4 @@
     </script>
 </body>
 </html>
+
